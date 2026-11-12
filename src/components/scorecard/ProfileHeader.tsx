@@ -63,7 +63,7 @@ export function ProfileHeader({ project }: ProfileHeaderProps) {
           </div>
 
           <div className="p-4">
-            <p className="cc-label uppercase tracking-[0.12em]">Dossier</p>
+            <p className="cc-label uppercase tracking-[0.12em]">Profile ID</p>
             <p className="cc-measured mt-2 text-sm font-medium text-[color:var(--color-ink)]">
               #{project.dossierId}
             </p>

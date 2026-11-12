@@ -54,7 +54,7 @@ export function AnalyzeBar({ onAnalyze, isAnalyzing }: AnalyzeBarProps) {
               ) : (
                 <>
                   <Sparkles className="h-4 w-4" />
-                  <span>Analyze Repository</span>
+                  <span>Analyze Your Repository</span>
                 </>
               )}
             </button>

@@ -26,42 +26,65 @@ export function ArchitectureGraph({ nodes, projectName }: ArchitectureGraphProps
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-rule)] bg-[color:var(--color-source)] px-5 py-4">
         <div>
           <p className="cc-label uppercase tracking-[0.14em] text-[color:var(--color-instrument)]">
-            Structural Knowledge Graph
+            Live Knowledge Graph
           </p>
           <h2 className="cc-title mt-1 text-base">{projectName} // Entity Topology</h2>
         </div>
 
-        <span className="cc-measured text-xs text-[color:var(--color-muted)]">
-          {nodes.length} inspected nodes
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="inline-flex items-center gap-1.5 rounded border border-[var(--color-rule)] bg-[color:var(--color-ok-soft)] px-2 py-0.5 text-[10px] text-[color:var(--color-ok)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--color-ok)] animate-pulse" />
+            Graph Active
+          </span>
+          <span className="cc-measured text-xs text-[color:var(--color-muted)]">
+            {nodes.length} nodes
+          </span>
+        </div>
       </div>
 
       <div className="cc-seamed grid gap-px lg:grid-cols-[minmax(0,1.4fr)_minmax(16rem,0.6fr)]">
-        {/* Interactive SVG Canvas */}
+        {/* Interactive Animated SVG Canvas */}
         <div className="p-4 sm:p-6">
           <svg
             viewBox="0 0 560 370"
             className="h-auto w-full rounded-[var(--radius-control)] border border-[var(--color-rule)] bg-[color:var(--color-source)]"
           >
-            {/* Edges */}
+            <defs>
+              <filter id="cc-graph-glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="2" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            {/* Edges + Animated Signal Particles */}
             {nodes.map((source) =>
               source.connections.map((targetId) => {
                 const target = nodeMap.get(targetId);
                 if (!target) return null;
                 const isHighlighted =
                   selectedNode?.id === source.id || selectedNode?.id === target.id;
+                const pathD = `M ${source.x} ${source.y} L ${target.x} ${target.y}`;
                 return (
-                  <line
-                    key={`${source.id}-${target.id}`}
-                    x1={source.x}
-                    y1={source.y}
-                    x2={target.x}
-                    y2={target.y}
-                    stroke={isHighlighted ? 'var(--color-instrument)' : 'var(--color-rule-strong)'}
-                    strokeWidth={isHighlighted ? 2 : 1.25}
-                    strokeDasharray={isHighlighted ? undefined : '4 3'}
-                    opacity={isHighlighted ? 1 : 0.65}
-                  />
+                  <g key={`${source.id}-${target.id}`}>
+                    <line
+                      x1={source.x}
+                      y1={source.y}
+                      x2={target.x}
+                      y2={target.y}
+                      stroke={isHighlighted ? 'var(--color-ok)' : 'var(--color-rule-strong)'}
+                      strokeWidth={isHighlighted ? 2 : 1.25}
+                      strokeDasharray={isHighlighted ? undefined : '4 3'}
+                      opacity={isHighlighted ? 0.95 : 0.55}
+                    />
+                    {isHighlighted && (
+                      <circle r="3" fill="var(--color-ok)" filter="url(#cc-graph-glow)">
+                        <animateMotion dur="1.6s" repeatCount="indefinite" path={pathD} />
+                      </circle>
+                    )}
+                  </g>
                 );
               })
             )}
@@ -77,6 +100,16 @@ export function ArchitectureGraph({ nodes, projectName }: ArchitectureGraphProps
                   onClick={() => setSelectedNodeId(node.id)}
                   className="cursor-pointer"
                 >
+                  {isSelected && (
+                    <circle
+                      r={20}
+                      fill="none"
+                      stroke={stroke}
+                      strokeWidth="1"
+                      opacity="0.45"
+                      className="animate-pulse"
+                    />
+                  )}
                   <circle
                     r={isSelected ? 14 : 10}
                     fill={isSelected ? stroke : 'var(--color-surface)'}
@@ -84,7 +117,7 @@ export function ArchitectureGraph({ nodes, projectName }: ArchitectureGraphProps
                     strokeWidth={isSelected ? 2.5 : 1.75}
                   />
                   <text
-                    y={26}
+                    y={27}
                     textAnchor="middle"
                     fill={isSelected ? 'var(--color-ink)' : 'var(--color-ink-soft)'}
                     fontSize="10"
@@ -147,7 +180,7 @@ export function ArchitectureGraph({ nodes, projectName }: ArchitectureGraphProps
           ) : null}
 
           <p className="cc-label mt-6 border-t border-[var(--color-rule)] pt-3 text-[10px]">
-            Click any graph node to trace couplings.
+            Click any graph node to trace live couplings.
           </p>
         </aside>
       </div>

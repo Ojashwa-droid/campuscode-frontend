@@ -27,14 +27,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { showToast } = useToast();
   const navigate = useNavigate();
 
-  const [user, setUser] = useState<User | null>(() => {
-    try {
-      const activeSession = localStorage.getItem(STORAGE_KEY_USER);
-      return activeSession ? JSON.parse(activeSession) : null;
-    } catch {
-      return null;
-    }
-  });
+  // Always start signed out when the app launches / reloads
+  const [user, setUser] = useState<User | null>(null);
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>('signin');
@@ -43,12 +37,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     try {
+      localStorage.removeItem(STORAGE_KEY_USER);
       const existingDb = localStorage.getItem(STORAGE_KEY_USERS_DB);
       if (!existingDb) {
         localStorage.setItem(STORAGE_KEY_USERS_DB, JSON.stringify(DEFAULT_USERS));
       }
     } catch (e) {
-      console.error('Failed to initialize local users database', e);
+      console.error('Failed to initialize auth store', e);
     }
   }, []);
 
@@ -108,7 +103,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
 
       setUser(sessionUser);
-      localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(sessionUser));
       setIsAuthModalOpen(false);
       showToast(`Welcome back, ${sessionUser.name}! Opening dashboard.`, 'success');
       navigate('/dashboard');
@@ -159,7 +153,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
 
       setUser(sessionUser);
-      localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(sessionUser));
       setIsAuthModalOpen(false);
       showToast(`Account created! Welcome to CampusCode, ${newUser.name}.`, 'success');
       navigate('/dashboard');
@@ -184,7 +177,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     setUser(githubUser);
-    localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(githubUser));
     setIsGithubModalOpen(false);
     setIsAuthModalOpen(false);
     showToast(`Connected with GitHub as @${cleanHandle}!`, 'success');
@@ -193,10 +185,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = useCallback(() => {
-    setUser(null);
-    localStorage.removeItem(STORAGE_KEY_USER);
-    showToast('You have been signed out.', 'info');
     navigate('/');
+    setUser(null);
+    showToast('You have been signed out.', 'info');
   }, [showToast, navigate]);
 
   return (

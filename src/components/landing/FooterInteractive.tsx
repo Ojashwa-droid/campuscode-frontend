@@ -71,7 +71,7 @@ export default function FooterInteractive() {
               onClick={handleDashboardClick}
               className="cc-link text-left cursor-pointer"
             >
-              {isAuthenticated ? 'Open dashboard' : 'Sign in for dashboard'}
+              {isAuthenticated ? 'Open dashboard' : 'Sign in for engineering profile'}
             </button>
             <button
               type="button"

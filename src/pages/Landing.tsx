@@ -11,6 +11,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import Navbar from '../components/landing/Navbar';
+import FAQ from '../components/landing/FAQ';
 import FooterInteractive from '../components/landing/FooterInteractive';
 import { RainbowPrismWave } from '../components/ui/RainbowPrismWave';
 import { useAuth } from '../context/useAuth';
@@ -34,7 +35,7 @@ const Landing = () => {
     if (isAuthenticated) {
       navigate('/dashboard');
     } else {
-      showToast('Sign in to inspect the full engineering dashboard.', 'info');
+      showToast('Sign in to inspect the full engineering profile.', 'info');
       openAuthModal('signin');
     }
   };
@@ -79,7 +80,7 @@ const Landing = () => {
                   className="cc-button cc-button--primary min-h-12 px-5"
                 >
                   <FontAwesomeIcon icon={faGithub} className="text-base" />
-                  <span>Sign in with GitHub</span>
+                  <span>Login with your GitHub</span>
                 </button>
               )}
 
@@ -98,7 +99,7 @@ const Landing = () => {
                   onClick={openDashboardOrAuth}
                   className="cc-button cc-button--quiet min-h-12 px-5"
                 >
-                  <span>View sample dossier</span>
+                  <span>View engineering profile</span>
                   <ArrowUpRight className="h-4 w-4" />
                 </button>
               )}
@@ -106,12 +107,12 @@ const Landing = () => {
           </div>
         </section>
 
-        {/* Section 2 — Dossier preview */}
+        {/* Section 2 — Engineering Profile preview */}
         <section className="cc-section">
           <div className="cc-container">
             <div className="grid gap-8 lg:grid-cols-[minmax(0,0.76fr)_minmax(0,1.24fr)] lg:items-end">
               <div>
-                <h2 className="cc-heading">The dossier, before the interview</h2>
+                <h2 className="cc-heading">The engineering profile, before the interview</h2>
               </div>
               <p className="cc-lead lg:mb-1">
                 A recruiter can move from an engineering claim to the underlying file and line range
@@ -122,7 +123,7 @@ const Landing = () => {
             <div className="cc-seamed mt-12 grid gap-px lg:grid-cols-[minmax(15rem,0.72fr)_minmax(0,1.28fr)]">
               <aside className="grid content-start gap-px">
                 <div className="p-5">
-                  <p className="cc-label">Candidate dossier</p>
+                  <p className="cc-label">Engineering Profile</p>
                   <p className="cc-title mt-2">OmniSearch</p>
                   <p className="cc-copy mt-4">
                     Six evidence dimensions from the current repository sample.
@@ -178,7 +179,7 @@ const Landing = () => {
                   onClick={openDashboardOrAuth}
                   className="cc-link mt-5 inline-flex items-center gap-2 text-sm cursor-pointer"
                 >
-                  Inspect the full dossier <ArrowUpRight className="h-3.5 w-3.5" />
+                  Inspect full engineering profile <ArrowUpRight className="h-3.5 w-3.5" />
                 </button>
               </article>
             </div>
@@ -276,7 +277,7 @@ const Landing = () => {
                 onClick={openDashboardOrAuth}
                 className="cc-button cc-button--primary mt-8"
               >
-                View sample dossier
+                View engineering profile
               </button>
             </article>
 
@@ -285,7 +286,7 @@ const Landing = () => {
                 For placement cells: standardize review.
               </h2>
               <p className="cc-copy mt-5 max-w-lg">
-                Generate consistent engineering dossiers across a graduating cohort without losing
+                Generate consistent engineering profiles across a graduating cohort without losing
                 the path back to source code.
               </p>
               <button
@@ -298,6 +299,9 @@ const Landing = () => {
             </article>
           </div>
         </section>
+
+        {/* Section 6 — FAQs */}
+        <FAQ />
       </main>
 
       <FooterInteractive />

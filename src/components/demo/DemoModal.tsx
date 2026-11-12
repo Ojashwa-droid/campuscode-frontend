@@ -179,7 +179,7 @@ export const DemoModal: React.FC = () => {
                 </span>
               </div>
               <p className="cc-label mt-0.5">
-                How CampusCode turns source code into explainable engineering dossiers.
+                How CampusCode turns source code into explainable engineering profiles.
               </p>
             </div>
           </div>
