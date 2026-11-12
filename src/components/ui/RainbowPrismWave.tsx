@@ -7,6 +7,7 @@ export function RainbowPrismWave() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    const container = canvas.parentElement;
 
     const vertexShader = `
       attribute vec3 position;
@@ -64,14 +65,20 @@ export function RainbowPrismWave() {
       return;
     }
 
+    const getSize = () => ({
+      width: container?.clientWidth || window.innerWidth,
+      height: container?.clientHeight || window.innerHeight,
+    });
+
+    const initialSize = getSize();
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(initialSize.width, initialSize.height, false);
 
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
     const uniforms = {
-      resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+      resolution: { value: new THREE.Vector2(initialSize.width, initialSize.height) },
       time: { value: 0.0 },
       xScale: { value: 0.55 },
       yScale: { value: 0.35 },
@@ -104,12 +111,18 @@ export function RainbowPrismWave() {
     scene.add(mesh);
 
     const onResize = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      renderer.setSize(width, height);
+      const { width, height } = getSize();
+      renderer.setSize(width, height, false);
       uniforms.resolution.value.set(width, height);
     };
 
+    const observer =
+      container && typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(onResize)
+        : null;
+    if (observer && container) {
+      observer.observe(container);
+    }
     window.addEventListener('resize', onResize);
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -129,6 +142,7 @@ export function RainbowPrismWave() {
 
     return () => {
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      observer?.disconnect();
       window.removeEventListener('resize', onResize);
       geometry.dispose();
       material.dispose();

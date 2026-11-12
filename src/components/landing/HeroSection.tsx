@@ -99,148 +99,165 @@ const HeroSection = () => {
     PREVIEW_SAMPLES.find((sample) => sample.id === selectedSampleId) || PREVIEW_SAMPLES[0];
 
   return (
-    <section className="relative isolate overflow-hidden border-b border-[var(--color-rule)] px-6 pb-16 pt-16 text-center md:pt-20">
-      {/* Campus-Code WebGL Wave Animation Style */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 opacity-55">
-        <RainbowPrismWave />
-      </div>
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 bg-[color:color-mix(in_oklab,var(--color-ground)_48%,transparent)]"
-      />
-
-      <div className="cc-container relative">
-        {/* Status Badge */}
-        <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-[var(--color-rule-strong)] bg-[color:var(--color-surface)]/90 px-3.5 py-1.5 backdrop-blur-sm">
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-pulseRing rounded-full bg-[color:var(--color-ok)]" />
-            <span className="relative h-2 w-2 rounded-full bg-[color:var(--color-ok)]" />
-          </span>
-          <span className="text-xs font-medium text-[color:var(--color-ink-soft)]">
-            100% Local Graph AI Evaluation
-          </span>
+    <>
+      {/* Full-viewport Hero matching campus-code's wave-led composition */}
+      <section className="relative isolate flex min-h-[calc(100svh-4rem)] items-center overflow-hidden border-b border-[var(--color-rule)]">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 opacity-60">
+          <RainbowPrismWave />
         </div>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 bg-[color:color-mix(in_oklab,var(--color-ground)_45%,transparent)]"
+        />
 
-        {/* Main Heading */}
-        <h1 className="cc-display mx-auto mt-6 max-w-4xl">
-          Resumes lie.
-          <span className="block text-[color:var(--color-recruiter)]">Code doesn&apos;t.</span>
-        </h1>
-
-        {/* Description */}
-        <p className="cc-lead mx-auto">
-          CampusCode turns entire codebases into explainable engineering knowledge graphs. Rate
-          architecture, thread-safety, and code hygiene with direct deep-links to source code.
-        </p>
-
-        {/* CTA Buttons */}
-        <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          {!isAuthenticated ? (
-            <button
-              type="button"
-              onClick={openGithubModal}
-              className="cc-button cc-button--primary min-h-12 px-6"
-            >
-              <FontAwesomeIcon icon={faGithub} className="text-base" />
-              <span>Sign in with GitHub</span>
-            </button>
-          ) : (
-            <Link to="/dashboard" className="cc-button cc-button--primary min-h-12 px-6 no-underline">
-              <span>Open Dashboard ({user?.name?.split(' ')[0]})</span>
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
-          )}
-
-          <button
-            type="button"
-            onClick={openDemoModal}
-            className="group cc-button cc-button--quiet min-h-12 bg-[color:var(--color-surface)]/80 px-6 backdrop-blur-sm"
-          >
-            <Sparkles className="h-4 w-4 text-[color:var(--color-ok)] transition-transform duration-200 group-hover:rotate-12" />
-            <span>View a Demo</span>
-          </button>
-        </div>
-
-        {/* Sample Scorecard Preview */}
-        <div className="cc-panel mx-auto mt-12 w-full max-w-[980px] overflow-hidden text-left shadow-2xl">
-          {/* Preview Header */}
-          <div className="flex h-14 items-center justify-between border-b border-[var(--color-rule)] bg-[color:var(--color-source)] px-5 sm:px-6">
-            <div className="flex items-center gap-2">
-              {PREVIEW_SAMPLES.map((sample) => {
-                const active = sample.id === selectedSampleId;
-                return (
-                  <button
-                    key={sample.id}
-                    type="button"
-                    onClick={() => setSelectedSampleId(sample.id)}
-                    className={`rounded-[var(--radius-control)] border px-3 py-1.5 text-xs font-medium transition cursor-pointer ${
-                      active
-                        ? 'border-[var(--color-instrument)] bg-[color:var(--color-instrument-soft)] text-[color:var(--color-ink)]'
-                        : 'border-transparent text-[color:var(--color-muted)] hover:text-[color:var(--color-ink-soft)]'
-                    }`}
-                  >
-                    {sample.tabLabel}
-                  </button>
-                );
-              })}
-            </div>
-
-            <span className="hidden text-[11px] text-[color:var(--color-muted)] sm:block">
-              Sample Scorecard Preview
+        <div className="cc-container relative py-20 text-center md:py-28">
+          <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-[var(--color-rule-strong)] bg-[color:var(--color-surface)]/85 px-3.5 py-1.5 backdrop-blur-sm">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-pulseRing rounded-full bg-[color:var(--color-ok)]" />
+              <span className="relative h-2 w-2 rounded-full bg-[color:var(--color-ok)]" />
+            </span>
+            <span className="text-xs font-medium text-[color:var(--color-ink-soft)]">
+              100% Local Graph AI Evaluation
             </span>
           </div>
 
-          {/* Preview Content */}
-          <div className="grid gap-6 p-5 md:grid-cols-2">
-            {/* Project Summary Card */}
-            <div className="cc-source p-5">
-              <span className="inline-flex rounded-[var(--radius-control)] border border-[var(--color-rule)] bg-[color:var(--color-ok-soft)] px-2.5 py-1 text-[11px] font-medium text-[color:var(--color-ok)]">
-                {activeSample.badge}
+          <h1 className="cc-display mx-auto mt-6 max-w-5xl">
+            Resumes lie.
+            <br />
+            <span className="text-[color:var(--color-recruiter)]">Code doesn&apos;t.</span>
+          </h1>
+
+          <p className="cc-lead mx-auto">
+            CampusCode turns entire codebases into explainable engineering knowledge graphs with
+            line-level proof from the repository.
+          </p>
+
+          <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+            {!isAuthenticated ? (
+              <button
+                type="button"
+                onClick={openGithubModal}
+                className="cc-button cc-button--primary min-h-12 px-6"
+              >
+                <FontAwesomeIcon icon={faGithub} className="text-base" />
+                <span>Sign in with GitHub</span>
+              </button>
+            ) : (
+              <Link
+                to="/dashboard"
+                className="cc-button cc-button--primary min-h-12 px-6 no-underline"
+              >
+                <span>Open Dashboard ({user?.name?.split(' ')[0]})</span>
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+            )}
+
+            <button
+              type="button"
+              onClick={openDemoModal}
+              className="group cc-button cc-button--quiet min-h-12 bg-[color:var(--color-surface)]/75 px-6 backdrop-blur-sm"
+            >
+              <Sparkles className="h-4 w-4 text-[color:var(--color-ok)] transition-transform duration-200 group-hover:rotate-12" />
+              <span>View a Demo</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Dedicated Sample Scorecard Preview Section below the fold */}
+      <section className="cc-section">
+        <div className="cc-container">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:items-end">
+            <div>
+              <p className="cc-label uppercase tracking-[0.18em] text-[color:var(--color-instrument)]">
+                Live Dossier Sample
+              </p>
+              <h2 className="cc-heading mt-3">The dossier, before the interview</h2>
+            </div>
+            <p className="cc-lead lg:mt-0">
+              Move directly from an engineering claim to the underlying file and line range without
+              waiting for a screening call.
+            </p>
+          </div>
+
+          <div className="cc-panel mt-10 overflow-hidden text-left">
+            {/* Preview Header */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--color-rule)] bg-[color:var(--color-source)] px-5 py-3.5 sm:px-6">
+              <div className="flex items-center gap-2">
+                {PREVIEW_SAMPLES.map((sample) => {
+                  const active = sample.id === selectedSampleId;
+                  return (
+                    <button
+                      key={sample.id}
+                      type="button"
+                      onClick={() => setSelectedSampleId(sample.id)}
+                      className={`rounded-[var(--radius-control)] border px-3 py-1.5 text-xs font-medium transition cursor-pointer ${
+                        active
+                          ? 'border-[var(--color-instrument)] bg-[color:var(--color-instrument-soft)] text-[color:var(--color-ink)]'
+                          : 'border-transparent text-[color:var(--color-muted)] hover:text-[color:var(--color-ink-soft)]'
+                      }`}
+                    >
+                      {sample.tabLabel}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <span className="hidden text-[11px] text-[color:var(--color-muted)] sm:block">
+                Sample Scorecard Preview
               </span>
-
-              <h2 className="cc-title mt-4">{activeSample.repoName}</h2>
-
-              <p className="cc-label mt-2">{activeSample.stack}</p>
-
-              {activeSample.bars.map((bar) => (
-                <ScoreBar key={bar.label} label={bar.label} value={bar.value} />
-              ))}
             </div>
 
-            {/* AI Finding Card */}
-            <div className="cc-source p-5">
-              <span className="inline-block rounded-[var(--radius-control)] border border-[var(--color-rule)] bg-[color:var(--color-instrument-soft)] px-2.5 py-1 text-[11px] text-[color:var(--color-instrument)]">
-                {activeSample.fileBadge}
-              </span>
+            {/* Preview Content */}
+            <div className="grid gap-6 p-5 md:grid-cols-2 sm:p-6">
+              <div className="cc-source p-5">
+                <span className="inline-flex rounded-[var(--radius-control)] border border-[var(--color-rule)] bg-[color:var(--color-ok-soft)] px-2.5 py-1 text-[11px] font-medium text-[color:var(--color-ok)]">
+                  {activeSample.badge}
+                </span>
 
-              <h3 className="mt-4 text-sm font-medium text-[color:var(--color-ink)]">
-                {activeSample.findingTitle}
-              </h3>
+                <h3 className="cc-title mt-4">{activeSample.repoName}</h3>
 
-              <p className="cc-copy mt-2 text-xs">{activeSample.findingDescription}</p>
+                <p className="cc-label mt-2">{activeSample.stack}</p>
 
-              <div className="mt-4 overflow-x-auto rounded-[var(--radius-control)] border border-[var(--color-rule)] bg-[color:var(--color-ground)] p-3 text-[11px] leading-6 text-[color:var(--color-ink-soft)]">
-                {activeSample.codeLines.map((line) => (
-                  <div key={line.num} className="whitespace-pre">
-                    <span
-                      className={
-                        line.highlight
-                          ? 'text-[color:var(--color-ok)] font-medium'
-                          : 'text-[color:var(--color-muted)]'
-                      }
-                    >
-                      {line.num}
-                    </span>
-                    {'  '}
-                    {line.text}
-                  </div>
+                {activeSample.bars.map((bar) => (
+                  <ScoreBar key={bar.label} label={bar.label} value={bar.value} />
                 ))}
+              </div>
+
+              <div className="cc-source p-5">
+                <span className="inline-block rounded-[var(--radius-control)] border border-[var(--color-rule)] bg-[color:var(--color-instrument-soft)] px-2.5 py-1 text-[11px] text-[color:var(--color-instrument)]">
+                  {activeSample.fileBadge}
+                </span>
+
+                <h4 className="mt-4 text-sm font-medium text-[color:var(--color-ink)]">
+                  {activeSample.findingTitle}
+                </h4>
+
+                <p className="cc-copy mt-2 text-xs">{activeSample.findingDescription}</p>
+
+                <div className="mt-4 overflow-x-auto rounded-[var(--radius-control)] border border-[var(--color-rule)] bg-[color:var(--color-ground)] p-3 text-[11px] leading-6 text-[color:var(--color-ink-soft)]">
+                  {activeSample.codeLines.map((line) => (
+                    <div key={line.num} className="whitespace-pre">
+                      <span
+                        className={
+                          line.highlight
+                            ? 'text-[color:var(--color-ok)] font-medium'
+                            : 'text-[color:var(--color-muted)]'
+                        }
+                      >
+                        {line.num}
+                      </span>
+                      {'  '}
+                      {line.text}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 };
 
