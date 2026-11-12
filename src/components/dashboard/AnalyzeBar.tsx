@@ -9,7 +9,7 @@ interface AnalyzeBarProps {
 const SAMPLE_URLS = [
   { label: 'spring-boot-ecommerce', url: 'https://github.com/campuscode-demo/spring-boot-ecommerce' },
   { label: 'multithreaded-queue', url: 'https://github.com/campuscode-demo/multithreaded-task-queue' },
-  { label: 'OmniSearch', url: 'https://github.com/Ojashwa-droid/OmniSearch' },
+  { label: 'realtime-collab-engine', url: 'https://github.com/campuscode-demo/realtime-collab-engine' },
 ];
 
 export function AnalyzeBar({ onAnalyze, isAnalyzing }: AnalyzeBarProps) {

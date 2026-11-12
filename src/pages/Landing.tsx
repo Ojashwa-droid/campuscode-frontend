@@ -18,12 +18,12 @@ import { useAuth } from '../context/useAuth';
 import { useToast } from '../context/useToast';
 
 const dimensions = [
-  ['Architecture', 'Service boundaries and orchestration', 'WebSearchService → OmnisearchOrchestrator', GitBranch],
-  ['Maintainability', 'Configuration and documentation signals', 'design-tokens.md', FileSearch],
-  ['Testing', 'Unit and integration evidence', 'No verified test suite in the sample', ShieldCheck],
-  ['Reliability', 'Timeout and failure recovery', 'multimodal-input-plan.md', Check],
+  ['Architecture', 'Service boundaries and orchestration', 'OrderController → OrderService', GitBranch],
+  ['Maintainability', 'Configuration and documentation signals', 'DatabaseConfig.java', FileSearch],
+  ['Testing', 'Unit and integration evidence', 'CheckoutRollbackTest.java', ShieldCheck],
+  ['Reliability', 'Timeout and failure recovery', 'RedisLockPool.java', Check],
   ['Security', 'Injection and authentication controls', 'SecurityFilter.java', ShieldCheck],
-  ['Performance', 'Streaming and parallel execution', 'WebFlux and follow-up agents', Database],
+  ['Performance', 'Caching and concurrent execution', 'InventoryService.java', Database],
 ] as const;
 
 const Landing = () => {
@@ -124,7 +124,7 @@ const Landing = () => {
               <aside className="grid content-start gap-px">
                 <div className="p-5">
                   <p className="cc-label">Engineering Profile</p>
-                  <p className="cc-title mt-2">OmniSearch</p>
+                  <p className="cc-title mt-2">campus-store</p>
                   <p className="cc-copy mt-4">
                     Six evidence dimensions from the current repository sample.
                   </p>
@@ -139,7 +139,7 @@ const Landing = () => {
                     >
                       <span className="text-sm text-[color:var(--color-ink-soft)]">{name}</span>
                       <span className="cc-measured text-sm text-[color:var(--color-ink)]">
-                        {index === 2 ? '0 / 5' : index > 2 ? '2 / 5' : '3 / 5'}
+                        {index === 2 ? '4 / 5' : index > 2 ? '4 / 5' : '5 / 5'}
                       </span>
                     </div>
                   )
@@ -148,28 +148,28 @@ const Landing = () => {
 
               <article className="min-w-0 p-5 sm:p-8">
                 <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
-                  <h3 className="cc-title">System architecture and coupling</h3>
-                  <span className="cc-measured cc-instrument text-sm">3 / 5</span>
+                  <h3 className="cc-title">Thread-safe distributed locking &amp; coupling</h3>
+                  <span className="cc-measured cc-instrument text-sm">5 / 5</span>
                 </div>
                 <p className="cc-copy mt-4 max-w-3xl">
-                  The architecture is documented with services and agents that coordinate parallel
-                  execution and streaming responses.
+                  Checkout acquires a Redis distributed lock with bounded timeout before mutating
+                  shared inventory records, keeping controllers thin and modular.
                 </p>
 
                 <div className="cc-source mt-8 overflow-hidden">
                   <div className="flex flex-wrap justify-between gap-3 border-b border-[var(--color-rule)] px-4 py-3">
                     <span className="cc-label text-[color:var(--color-ink-soft)]">
-                      OMNISEARCH_SETUP.md
+                      src/main/java/orders/OrderService.java
                     </span>
-                    <span className="cc-label cc-instrument">Lines 20 to 32</span>
+                    <span className="cc-label cc-instrument">Lines 83 to 87</span>
                   </div>
                   <pre className="m-0 overflow-x-auto p-4 text-xs leading-6 text-[color:var(--color-ink-soft)]">
                     <code>
-                      <span className="text-[color:var(--color-muted)]">20</span> WebSearchService handles Tavily API integration
+                      <span className="text-[color:var(--color-muted)]">83</span> public OrderResponse checkout(UUID cartId) {'{'}
                       {'\n'}
-                      <span className="text-[color:var(--color-muted)]">21</span> OmnisearchOrchestrator coordinates parallel execution
+                      <span className="text-[color:var(--color-muted)]">84</span>   RLock lock = redis.getLock(cartId);
                       {'\n'}
-                      <span className="text-[color:var(--color-muted)]">22</span> SupabaseService handles data persistence
+                      <span className="text-[color:var(--color-muted)]">85</span>   if (lock.tryLock(5, TimeUnit.SECONDS)) {'{'} return reserve(cartId); {'}'}
                     </code>
                   </pre>
                 </div>
