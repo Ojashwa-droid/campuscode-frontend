@@ -42,6 +42,10 @@ export function SkillsRadar({
           <h2 className="cc-title mt-1 text-base">Six-dimension evaluation</h2>
         </div>
 
+        <span className="cc-label text-[11px]">
+          Click any dimension to inspect code evidence
+        </span>
+
         {selectedDimension && (
           <button
             type="button"

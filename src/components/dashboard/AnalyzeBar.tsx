@@ -22,59 +22,55 @@ export function AnalyzeBar({ onAnalyze, isAnalyzing }: AnalyzeBarProps) {
   };
 
   return (
-    <section aria-label="Analyze repository" className="cc-panel p-5 sm:p-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <GitBranch className="h-3.5 w-3.5 text-[color:var(--color-instrument)]" />
-            <label htmlFor="dashboard-repo-url" className="cc-label uppercase tracking-[0.14em]">
-              Analyze GitHub Repository (Local Graph Sandbox)
-            </label>
-          </div>
-
-          <form onSubmit={handleSubmit} className="flex flex-col gap-2.5 sm:flex-row">
-            <input
-              id="dashboard-repo-url"
-              type="text"
-              value={repoUrl}
-              onChange={(e) => setRepoUrl(e.target.value)}
-              placeholder="https://github.com/owner/repository"
-              className="cc-input flex-1"
-            />
-            <button
-              type="submit"
-              disabled={isAnalyzing || !repoUrl.trim()}
-              className="cc-button cc-button--primary shrink-0 px-5"
-            >
-              {isAnalyzing ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Analyzing...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4" />
-                  <span>Analyze Your Repository</span>
-                </>
-              )}
-            </button>
-          </form>
+    <section aria-label="Analyze repository" className="cc-panel p-4 sm:p-5">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1 flex items-center">
+          <GitBranch className="pointer-events-none absolute left-3.5 h-4 w-4 text-[color:var(--color-instrument)]" />
+          <label htmlFor="dashboard-repo-url" className="sr-only">
+            GitHub Repository URL
+          </label>
+          <input
+            id="dashboard-repo-url"
+            type="text"
+            value={repoUrl}
+            onChange={(e) => setRepoUrl(e.target.value)}
+            placeholder="Paste GitHub repository URL (e.g. https://github.com/owner/repo)"
+            className="cc-input pl-10"
+          />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 lg:pb-1">
-          <span className="cc-label text-[11px]">Presets:</span>
-          {SAMPLE_URLS.map((preset) => (
-            <button
-              key={preset.label}
-              type="button"
-              disabled={isAnalyzing}
-              onClick={() => setRepoUrl(preset.url)}
-              className="rounded-[var(--radius-control)] border border-[var(--color-rule)] bg-[color:var(--color-source)] px-2.5 py-1.5 text-[11px] text-[color:var(--color-ink-soft)] hover:border-[var(--color-instrument)] hover:text-[color:var(--color-ink)] transition cursor-pointer disabled:opacity-50"
-            >
-              {preset.label}
-            </button>
-          ))}
-        </div>
+        <button
+          type="submit"
+          disabled={isAnalyzing || !repoUrl.trim()}
+          className="cc-button cc-button--primary shrink-0 px-5"
+        >
+          {isAnalyzing ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Analyzing...</span>
+            </>
+          ) : (
+            <>
+              <Sparkles className="h-4 w-4" />
+              <span>Analyze Your Repository</span>
+            </>
+          )}
+        </button>
+      </form>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <span className="cc-label text-[11px]">Quick presets:</span>
+        {SAMPLE_URLS.map((preset) => (
+          <button
+            key={preset.label}
+            type="button"
+            disabled={isAnalyzing}
+            onClick={() => setRepoUrl(preset.url)}
+            className="rounded-[var(--radius-control)] border border-[var(--color-rule)] bg-[color:var(--color-source)] px-2.5 py-1 text-[11px] text-[color:var(--color-muted)] hover:border-[var(--color-instrument)] hover:text-[color:var(--color-ink)] transition cursor-pointer disabled:opacity-50"
+          >
+            {preset.label}
+          </button>
+        ))}
       </div>
     </section>
   );
