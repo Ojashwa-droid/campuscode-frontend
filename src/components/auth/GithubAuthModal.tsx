@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { X, ShieldCheck, Check, ArrowRight, Loader2 } from 'lucide-react';
@@ -8,6 +8,16 @@ export const GithubAuthModal: React.FC = () => {
   const { isGithubModalOpen, closeGithubModal, loginWithGithub } = useAuth();
   const [handle, setHandle] = useState('octodev');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isGithubModalOpen) {
+        closeGithubModal();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isGithubModalOpen, closeGithubModal]);
 
   if (!isGithubModalOpen) return null;
 
@@ -20,66 +30,65 @@ export const GithubAuthModal: React.FC = () => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md"
       role="dialog"
       aria-modal="true"
+      aria-label="Authorize with GitHub"
       onClick={closeGithubModal}
     >
       <div
-        className="relative w-full max-w-[460px] overflow-hidden rounded-2xl bg-white shadow-2xl border border-[#E5E7EB] transition-all"
+        className="cc-panel relative w-full max-w-[460px] overflow-hidden shadow-2xl"
         style={{
           animation: 'modalSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards',
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header decoration */}
-        <div className="bg-[#111827] px-6 py-6 text-white text-center relative">
+        {/* Header */}
+        <div className="border-b border-[var(--color-rule)] bg-[color:var(--color-source)] px-6 py-6 text-center relative">
           <button
+            type="button"
             onClick={closeGithubModal}
-            className="absolute top-4 right-4 rounded-full p-1.5 text-gray-400 hover:text-white hover:bg-gray-800 transition"
+            className="cc-button cc-button--quiet absolute top-4 right-4 min-h-8 w-8 border-0 px-0"
             aria-label="Close dialog"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
 
-          {/* Connected Logos */}
           <div className="flex items-center justify-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 text-white shadow-inner">
+            <div className="flex h-12 w-12 items-center justify-center rounded-[var(--radius-surface)] border border-[var(--color-rule-strong)] bg-[color:var(--color-surface)] text-[color:var(--color-ink)]">
               <FontAwesomeIcon icon={faGithub} className="text-2xl" />
             </div>
 
-            <div className="flex items-center gap-1 text-[#10B981]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#10B981] animate-ping" />
+            <div className="flex items-center gap-1.5 text-[color:var(--color-ok)]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--color-ok)] animate-ping" />
               <ArrowRight className="h-4 w-4" />
             </div>
 
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#10B981] text-white font-extrabold text-sm shadow-md">
+            <div className="flex h-12 w-12 items-center justify-center rounded-[var(--radius-surface)] border border-[var(--color-recruiter)] bg-[color:var(--color-recruiter-soft)] text-[color:var(--color-recruiter)] font-bold text-sm">
               CC
             </div>
           </div>
 
-          <h3 className="mt-4 text-xl font-bold text-white tracking-tight">
-            Authorize with GitHub
-          </h3>
-          <p className="mt-1 text-xs text-gray-300">
-            Sign up or log in using your GitHub account for instant codebase evaluation.
+          <h3 className="cc-title mt-4">Authorize with GitHub</h3>
+          <p className="cc-copy mt-1 text-xs">
+            Sign in using your GitHub handle to open the engineering dashboard.
           </p>
         </div>
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6">
-          <div className="rounded-xl border border-gray-100 bg-[#FAFAF7] p-4 text-left">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-500 mb-1.5">
+          <div className="cc-source p-4 text-left">
+            <label className="cc-label block uppercase tracking-[0.12em] mb-2">
               GitHub Username / Handle
             </label>
-            <div className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 focus-within:border-[#10B981] focus-within:ring-2 focus-within:ring-[#10B981]/20 transition">
-              <span className="text-sm font-semibold text-gray-400">@</span>
+            <div className="flex items-center gap-2 rounded-[var(--radius-control)] border border-[var(--color-rule-strong)] bg-[color:var(--color-surface)] px-3 py-2 focus-within:border-[var(--color-recruiter)] transition">
+              <span className="text-sm font-medium text-[color:var(--color-muted)]">@</span>
               <input
                 type="text"
                 value={handle}
                 onChange={(e) => setHandle(e.target.value)}
-                placeholder="username (e.g. torvalds or your handle)"
-                className="w-full text-sm font-medium text-gray-900 outline-none placeholder:text-gray-400"
+                placeholder="username (e.g. torvalds)"
+                className="w-full bg-transparent text-sm text-[color:var(--color-ink)] outline-none placeholder:text-[color:var(--color-muted)]"
                 autoFocus
               />
               <img
@@ -89,48 +98,45 @@ export const GithubAuthModal: React.FC = () => {
                   (e.target as HTMLImageElement).src =
                     'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png';
                 }}
-                className="h-7 w-7 rounded-full border border-gray-200 bg-gray-100 object-cover"
+                className="h-7 w-7 rounded-full border border-[var(--color-rule-strong)] bg-[color:var(--color-ground)] object-cover"
               />
             </div>
-            <p className="mt-2 text-[11px] text-gray-500">
-              Type your GitHub username or keep <span className="font-mono text-gray-700 font-semibold">octodev</span> for a quick demo profile.
+            <p className="mt-2 text-[11px] text-[color:var(--color-muted)]">
+              Enter your GitHub username or keep{' '}
+              <span className="text-[color:var(--color-instrument)] font-medium">octodev</span> for a quick demo profile.
             </p>
           </div>
 
-          {/* Requested Permissions */}
           <div className="mt-4 space-y-2.5 text-left">
-            <p className="text-xs font-bold uppercase tracking-wider text-gray-700">
-              Requested Permissions:
-            </p>
+            <p className="cc-label uppercase tracking-[0.12em]">Requested Permissions</p>
 
-            <div className="flex items-start gap-2.5 text-xs text-gray-600">
-              <Check className="h-4 w-4 text-[#10B981] shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2.5 text-xs text-[color:var(--color-ink-soft)]">
+              <Check className="h-4 w-4 text-[color:var(--color-ok)] shrink-0 mt-0.5" />
               <span>
-                <strong>Read public repositories:</strong> To build local architectural knowledge graphs.
+                <strong className="text-[color:var(--color-ink)]">Read public repositories:</strong> Build local architectural knowledge graphs.
               </span>
             </div>
 
-            <div className="flex items-start gap-2.5 text-xs text-gray-600">
-              <Check className="h-4 w-4 text-[#10B981] shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2.5 text-xs text-[color:var(--color-ink-soft)]">
+              <Check className="h-4 w-4 text-[color:var(--color-ok)] shrink-0 mt-0.5" />
               <span>
-                <strong>Verify profile info:</strong> Use GitHub avatar, name, and commits to back engineering scorecards.
+                <strong className="text-[color:var(--color-ink)]">Verify profile info:</strong> Link GitHub identity to engineering scorecards.
               </span>
             </div>
 
-            <div className="flex items-start gap-2.5 text-xs text-[#059669] bg-[#10B981]/10 rounded-lg p-2.5 mt-2">
+            <div className="flex items-start gap-2.5 text-xs text-[color:var(--color-ok)] border border-[var(--color-rule)] bg-[color:var(--color-ok-soft)] rounded-[var(--radius-control)] p-2.5 mt-2">
               <ShieldCheck className="h-4 w-4 shrink-0 mt-0.5" />
               <span>
-                <strong>Zero code uploaded:</strong> CampusCode executes parsing and analysis directly in client sandbox.
+                <strong>Zero code uploaded:</strong> Parsing executes locally in your browser sandbox.
               </span>
             </div>
           </div>
 
-          {/* Buttons */}
           <div className="mt-6 flex flex-col gap-2.5">
             <button
               type="submit"
               disabled={loading}
-              className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#111827] text-sm font-bold text-white shadow-md transition hover:bg-[#1f2937] active:scale-[0.99] disabled:opacity-70 cursor-pointer"
+              className="cc-button cc-button--primary w-full"
             >
               {loading ? (
                 <>
@@ -140,7 +146,7 @@ export const GithubAuthModal: React.FC = () => {
               ) : (
                 <>
                   <FontAwesomeIcon icon={faGithub} className="text-base" />
-                  <span>Authorize & Continue</span>
+                  <span>Authorize &amp; Open Dashboard</span>
                 </>
               )}
             </button>
@@ -149,7 +155,7 @@ export const GithubAuthModal: React.FC = () => {
               type="button"
               onClick={closeGithubModal}
               disabled={loading}
-              className="h-10 w-full text-xs font-semibold text-gray-500 hover:text-gray-900 transition"
+              className="cc-button cc-button--quiet w-full border-0 text-xs"
             >
               Cancel
             </button>

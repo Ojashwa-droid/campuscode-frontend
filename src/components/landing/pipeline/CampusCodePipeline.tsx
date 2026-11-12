@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import RepositoryView from '../pipeline/RepositoryView';
-import KnowledgeGraph from '../pipeline/KnowledgeGraph';
-import EvidenceView from '../pipeline/EvidenceView';
+import RepositoryView from './RepositoryView';
+import KnowledgeGraph from './KnowledgeGraph';
+import EvidenceView from './EvidenceView';
 
 const steps = [
   { id: 'repository', number: '01', label: 'Repository' },
@@ -15,35 +15,26 @@ const CampusCodePipeline = () => {
   const [activeStep, setActiveStep] = useState<StepId>('repository');
 
   return (
-    <section
-      id="how-it-works"
-      className="bg-white px-6 py-16"
-    >
-      <div className="mx-auto max-w-[1180px]">
-
+    <section id="how-it-works" className="cc-section cc-section--band">
+      <div className="cc-container">
         {/* Heading */}
         <div className="max-w-[720px]">
-
-          <p className="font-mono text-[12px] font-medium uppercase tracking-[0.18em] text-[#10B981]">
+          <p className="cc-label uppercase tracking-[0.18em] text-[color:var(--color-instrument)]">
             How CampusCode Works
           </p>
 
-          <h2 className="mt-4 text-4xl font-extrabold leading-[1.08] tracking-[-0.045em] text-[#121316] sm:text-[44px]">
-            Your repository is the evidence
-            <span className="text-[#10B981]">.</span>
+          <h2 className="cc-heading mt-4">
+            Your repository is the evidence<span className="text-[color:var(--color-recruiter)]">.</span>
           </h2>
 
-          <p className="mt-4 text-[16px] leading-7 text-[#6B7280]">
-            Follow your project from source code to engineering
-            intelligence.
+          <p className="cc-lead">
+            Follow your project from source code to engineering intelligence.
           </p>
-
         </div>
 
         {/* Pipeline Navigation */}
-        <div className="mt-10 border-y border-[#E5E7EB]">
-
-          <div className="grid grid-cols-3">
+        <div className="mt-10 border-y border-[var(--color-rule)]">
+          <div className="grid grid-cols-1 sm:grid-cols-3">
             {steps.map((step) => {
               const isActive = step.id === activeStep;
 
@@ -52,34 +43,35 @@ const CampusCodePipeline = () => {
                   key={step.id}
                   type="button"
                   onClick={() => setActiveStep(step.id)}
-                  className={`relative flex items-center gap-3 px-4 py-5 text-left transition-colors sm:px-6 ${
-                    isActive ? 'bg-[#FAFAF7]' : 'hover:bg-[#FAFAF7]/60'
+                  className={`relative flex items-center gap-3 px-4 py-5 text-left transition-colors sm:px-6 cursor-pointer border-b sm:border-b-0 sm:border-r border-[var(--color-rule)] last:border-b-0 last:border-r-0 ${
+                    isActive
+                      ? 'bg-[color:var(--color-surface)]'
+                      : 'hover:bg-[color:var(--color-surface)]/50'
                   }`}
                 >
                   <span
-                    className={`font-mono text-[11px] ${
-                      isActive ? 'text-[#10B981]' : 'text-[#9CA3AF]'
+                    className={`cc-measured text-xs ${
+                      isActive ? 'text-[color:var(--color-instrument)]' : 'text-[color:var(--color-muted)]'
                     }`}
                   >
                     {step.number}
                   </span>
 
                   <span
-                    className={`text-[13px] font-semibold sm:text-[14px] ${
-                      isActive ? 'text-[#121316]' : 'text-[#6B7280]'
+                    className={`text-xs sm:text-sm font-medium ${
+                      isActive ? 'text-[color:var(--color-ink)]' : 'text-[color:var(--color-ink-soft)]'
                     }`}
                   >
                     {step.label}
                   </span>
 
                   {isActive && (
-                    <span className="absolute bottom-0 left-0 h-[2px] w-full bg-[#10B981]" />
+                    <span className="absolute bottom-0 left-0 h-[2px] w-full bg-[color:var(--color-instrument)]" />
                   )}
                 </button>
               );
             })}
           </div>
-
         </div>
 
         {/* Step Content */}
@@ -88,7 +80,6 @@ const CampusCodePipeline = () => {
           {activeStep === 'graph' && <KnowledgeGraph />}
           {activeStep === 'evidence' && <EvidenceView />}
         </div>
-
       </div>
     </section>
   );

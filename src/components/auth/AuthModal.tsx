@@ -30,19 +30,16 @@ export const AuthModal: React.FC = () => {
   } = useAuth();
   const { showToast } = useToast();
 
-  // Sign in form state
   const [signInEmail, setSignInEmail] = useState('');
   const [signInPassword, setSignInPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
 
-  // Sign up form state
   const [signUpName, setSignUpName] = useState('');
   const [signUpEmail, setSignUpEmail] = useState('');
   const [signUpPassword, setSignUpPassword] = useState('');
   const [signUpConfirmPassword, setSignUpConfirmPassword] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(false);
 
-  // UI state
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -53,7 +50,6 @@ export const AuthModal: React.FC = () => {
     setAuthMode(mode);
   };
 
-  // Handle ESC key to close modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isAuthModalOpen) {
@@ -66,31 +62,28 @@ export const AuthModal: React.FC = () => {
 
   if (!isAuthModalOpen) return null;
 
-  // Password strength calculator
   const getPasswordStrength = (pwd: string) => {
-    if (!pwd) return { score: 0, text: '', color: 'bg-gray-200' };
+    if (!pwd) return { score: 0, text: '', color: 'bg-[color:var(--color-rule)]' };
     let score = 0;
     if (pwd.length >= 6) score += 1;
     if (pwd.length >= 8) score += 1;
     if (/[A-Z]/.test(pwd) || /[0-9]/.test(pwd)) score += 1;
     if (/[^A-Za-z0-9]/.test(pwd)) score += 1;
 
-    if (score <= 1) return { score: 1, text: 'Weak', color: 'bg-red-500' };
+    if (score <= 1) return { score: 1, text: 'Weak', color: 'bg-[color:var(--color-warning)]' };
     if (score === 2 || score === 3)
-      return { score: 2, text: 'Medium', color: 'bg-amber-500' };
-    return { score: 3, text: 'Strong', color: 'bg-[#10B981]' };
+      return { score: 2, text: 'Medium', color: 'bg-[color:var(--color-recruiter)]' };
+    return { score: 3, text: 'Strong', color: 'bg-[color:var(--color-ok)]' };
   };
 
   const strength = getPasswordStrength(signUpPassword);
 
-  // 1-Click Demo Fill for easy testing
   const handleFillDemo = () => {
     setSignInEmail('demo@campuscode.ai');
     setSignInPassword('password123');
     setErrorMessage(null);
   };
 
-  // Sign In handler
   const handleSignInSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -109,7 +102,6 @@ export const AuthModal: React.FC = () => {
     }
   };
 
-  // Sign Up handler
   const handleSignUpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -148,201 +140,184 @@ export const AuthModal: React.FC = () => {
     }
   };
 
-  const handleGithubClick = () => {
-    openGithubModal();
-  };
-
   const handleForgotPassword = (e: React.MouseEvent) => {
     e.preventDefault();
-    showToast(
-      'Password reset instructions sent! For testing, use password: password123',
-      'info'
-    );
+    showToast('Password reset instructions sent! For testing, use password: password123', 'info');
   };
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md overflow-y-auto"
       role="dialog"
       aria-modal="true"
+      aria-label={authMode === 'signin' ? 'Sign in to CampusCode' : 'Create CampusCode account'}
       onClick={closeAuthModal}
     >
       <div
-        className="relative my-8 w-full max-w-[480px] overflow-hidden rounded-2xl bg-white shadow-2xl border border-[#E5E7EB] text-left transition-all"
+        className="cc-panel relative my-8 w-full max-w-[480px] overflow-hidden shadow-2xl text-left"
         style={{
           animation: 'modalSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards',
         }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Bar */}
-        <div className="flex items-center justify-between border-b border-[#E5E7EB] px-6 py-4 bg-[#FAFAF7]">
-          <div className="flex items-center gap-2">
-            <span className="text-[17px] font-extrabold tracking-[-0.04em] text-[#121316]">
+        <div className="flex items-center justify-between border-b border-[var(--color-rule)] bg-[color:var(--color-source)] px-6 py-4">
+          <div className="flex items-center gap-2.5">
+            <img src="/assets/logo.png" alt="" width={20} height={20} className="h-5 w-5 invert" />
+            <span className="text-sm font-semibold tracking-[-0.04em] text-[color:var(--color-ink)]">
               CampusCode
             </span>
-            <span className="flex h-5 w-5 items-center justify-center rounded-[5px] bg-[#111827] text-[8px] font-bold text-white">
+            <span className="rounded-[var(--radius-control)] border border-[var(--color-rule-strong)] bg-[color:var(--color-surface)] px-1.5 py-0.5 text-[10px] font-medium text-[color:var(--color-instrument)]">
               AI
             </span>
           </div>
 
           <button
+            type="button"
             onClick={closeAuthModal}
-            className="rounded-full p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition"
+            className="cc-button cc-button--quiet min-h-8 w-8 border-0 px-0"
             aria-label="Close modal"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Tab Toggle: Sign In vs Create Account */}
-        <div className="flex border-b border-[#E5E7EB] bg-gray-50/50">
+        {/* Tab Toggle */}
+        <div className="grid grid-cols-2 border-b border-[var(--color-rule)] bg-[color:var(--color-source)]">
           <button
             type="button"
             onClick={() => handleSwitchMode('signin')}
-            className={`flex-1 py-3 text-center text-sm font-semibold transition-all relative ${
+            className={`relative py-3 text-center text-xs font-medium transition-colors cursor-pointer ${
               authMode === 'signin'
-                ? 'text-[#121316] bg-white'
-                : 'text-gray-500 hover:text-gray-800'
+                ? 'bg-[color:var(--color-surface)] text-[color:var(--color-ink)]'
+                : 'text-[color:var(--color-muted)] hover:text-[color:var(--color-ink-soft)]'
             }`}
           >
             Sign In
             {authMode === 'signin' && (
-              <span className="absolute bottom-0 left-0 h-[2px] w-full bg-[#10B981]" />
+              <span className="absolute bottom-0 left-0 h-[2px] w-full bg-[color:var(--color-recruiter)]" />
             )}
           </button>
 
           <button
             type="button"
             onClick={() => handleSwitchMode('signup')}
-            className={`flex-1 py-3 text-center text-sm font-semibold transition-all relative ${
+            className={`relative py-3 text-center text-xs font-medium transition-colors cursor-pointer ${
               authMode === 'signup'
-                ? 'text-[#121316] bg-white'
-                : 'text-gray-500 hover:text-gray-800'
+                ? 'bg-[color:var(--color-surface)] text-[color:var(--color-ink)]'
+                : 'text-[color:var(--color-muted)] hover:text-[color:var(--color-ink-soft)]'
             }`}
           >
             Create Account
             {authMode === 'signup' && (
-              <span className="absolute bottom-0 left-0 h-[2px] w-full bg-[#10B981]" />
+              <span className="absolute bottom-0 left-0 h-[2px] w-full bg-[color:var(--color-recruiter)]" />
             )}
           </button>
         </div>
 
         {/* Content Body */}
         <div className="p-6">
-          {/* GitHub Auth Button (Primary feature) */}
+          {/* GitHub Auth Trigger */}
           <div className="mb-5">
             <button
               type="button"
-              onClick={handleGithubClick}
-              className="group flex h-11 w-full items-center justify-center gap-3 rounded-xl bg-[#111827] px-4 text-sm font-bold text-white shadow-md transition hover:bg-[#1f2937] active:scale-[0.99] cursor-pointer"
+              onClick={openGithubModal}
+              className="cc-button w-full justify-between border-[var(--color-rule-strong)] bg-[color:var(--color-source)] px-4 hover:border-[var(--color-instrument)]"
             >
-              <FontAwesomeIcon
-                icon={faGithub}
-                className="text-[17px] transition group-hover:rotate-6"
-              />
-              <span>
-                {authMode === 'signin'
-                  ? 'Sign in with GitHub'
-                  : 'Sign up with GitHub'}
+              <span className="flex items-center gap-2.5 text-[color:var(--color-ink)]">
+                <FontAwesomeIcon icon={faGithub} className="text-base" />
+                <span>{authMode === 'signin' ? 'Sign in with GitHub' : 'Sign up with GitHub'}</span>
               </span>
-              <span className="ml-auto rounded bg-white/10 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
-                Fast & Local
+              <span className="rounded border border-[var(--color-rule)] bg-[color:var(--color-ok-soft)] px-2 py-0.5 text-[10px] text-[color:var(--color-ok)]">
+                Fast &amp; Local
               </span>
             </button>
 
             <div className="mt-4 flex items-center gap-3">
-              <div className="h-[1px] flex-1 bg-gray-200" />
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+              <div className="h-px flex-1 bg-[color:var(--color-rule)]" />
+              <span className="text-[10px] uppercase tracking-[0.16em] text-[color:var(--color-muted)]">
                 or with email
               </span>
-              <div className="h-[1px] flex-1 bg-gray-200" />
+              <div className="h-px flex-1 bg-[color:var(--color-rule)]" />
             </div>
           </div>
 
-          {/* Error Message Alert */}
           {errorMessage && (
-            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 animate-fadeIn">
-              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-red-600" />
+            <div
+              role="alert"
+              className="mb-4 flex items-start gap-2.5 rounded-[var(--radius-control)] border border-[var(--color-warning)] bg-[color:var(--color-warning-soft)] p-3 text-xs text-[color:var(--color-ink)] animate-fadeIn"
+            >
+              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-[color:var(--color-warning)]" />
               <span className="leading-relaxed">{errorMessage}</span>
             </div>
           )}
 
-          {/* SIGN IN FORM */}
           {authMode === 'signin' && (
             <form onSubmit={handleSignInSubmit} className="space-y-4">
-              {/* Email */}
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5">
+                <label className="cc-label block uppercase tracking-[0.12em] mb-1.5">
                   Email Address
                 </label>
                 <div className="relative flex items-center">
-                  <Mail className="absolute left-3.5 h-4 w-4 text-gray-400" />
+                  <Mail className="pointer-events-none absolute left-3.5 h-4 w-4 text-[color:var(--color-muted)]" />
                   <input
                     type="email"
                     value={signInEmail}
                     onChange={(e) => setSignInEmail(e.target.value)}
                     placeholder="name@company.com"
                     required
-                    className="h-11 w-full rounded-xl border border-gray-300 bg-white pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#10B981] focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 transition"
+                    className="cc-input pl-10"
                   />
                 </div>
               </div>
 
-              {/* Password */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600">
-                    Password
-                  </label>
+                  <label className="cc-label uppercase tracking-[0.12em]">Password</label>
                   <button
                     type="button"
                     onClick={handleForgotPassword}
-                    className="text-xs font-medium text-[#10B981] hover:underline"
+                    className="text-[11px] text-[color:var(--color-instrument)] hover:underline cursor-pointer"
                   >
                     Forgot password?
                   </button>
                 </div>
                 <div className="relative flex items-center">
-                  <Lock className="absolute left-3.5 h-4 w-4 text-gray-400" />
+                  <Lock className="pointer-events-none absolute left-3.5 h-4 w-4 text-[color:var(--color-muted)]" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={signInPassword}
                     onChange={(e) => setSignInPassword(e.target.value)}
                     placeholder="••••••••"
                     required
-                    className="h-11 w-full rounded-xl border border-gray-300 bg-white pl-10 pr-10 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#10B981] focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 transition"
+                    className="cc-input pl-10 pr-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 text-gray-400 hover:text-gray-600 transition"
+                    className="absolute right-3 text-[color:var(--color-muted)] hover:text-[color:var(--color-ink)] transition cursor-pointer"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
               </div>
 
-              {/* Remember Me & 1-Click Demo */}
               <div className="flex items-center justify-between pt-1">
-                <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-600">
+                <label className="flex items-center gap-2 cursor-pointer text-xs text-[color:var(--color-ink-soft)]">
                   <input
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="h-4 w-4 rounded border-gray-300 text-[#10B981] focus:ring-[#10B981]"
+                    className="h-4 w-4 rounded border-[var(--color-rule-strong)] bg-[color:var(--color-source)] accent-[var(--color-recruiter)]"
                   />
-                  <span>Remember me for 30 days</span>
+                  <span>Remember me</span>
                 </label>
 
                 <button
                   type="button"
                   onClick={handleFillDemo}
-                  className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-[#059669] hover:bg-emerald-100 transition"
+                  className="inline-flex items-center gap-1.5 rounded-[var(--radius-control)] border border-[var(--color-rule)] bg-[color:var(--color-instrument-soft)] px-2.5 py-1 text-[11px] font-medium text-[color:var(--color-instrument)] hover:border-[var(--color-instrument)] transition cursor-pointer"
                   title="Auto-fill with sample credentials"
                 >
                   <Sparkles className="h-3 w-3" />
@@ -350,11 +325,10 @@ export const AuthModal: React.FC = () => {
                 </button>
               </div>
 
-              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#10B981] text-sm font-bold text-white shadow-md transition hover:bg-[#059669] active:scale-[0.99] disabled:opacity-70 cursor-pointer"
+                className="cc-button cc-button--primary mt-2 w-full"
               >
                 {loading ? (
                   <>
@@ -363,7 +337,7 @@ export const AuthModal: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <span>Sign In to CampusCode</span>
+                    <span>Sign In &amp; Open Dashboard</span>
                     <ArrowRight className="h-4 w-4" />
                   </>
                 )}
@@ -371,61 +345,55 @@ export const AuthModal: React.FC = () => {
             </form>
           )}
 
-          {/* SIGN UP FORM */}
           {authMode === 'signup' && (
             <form onSubmit={handleSignUpSubmit} className="space-y-3.5">
-              {/* Full Name */}
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                <label className="cc-label block uppercase tracking-[0.12em] mb-1.5">
                   Full Name
                 </label>
                 <div className="relative flex items-center">
-                  <UserIcon className="absolute left-3.5 h-4 w-4 text-gray-400" />
+                  <UserIcon className="pointer-events-none absolute left-3.5 h-4 w-4 text-[color:var(--color-muted)]" />
                   <input
                     type="text"
                     value={signUpName}
                     onChange={(e) => setSignUpName(e.target.value)}
                     placeholder="Alex Morgan"
                     required
-                    className="h-10 w-full rounded-xl border border-gray-300 bg-white pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#10B981] focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 transition"
+                    className="cc-input min-h-10 pl-10"
                   />
                 </div>
               </div>
 
-              {/* Email */}
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                <label className="cc-label block uppercase tracking-[0.12em] mb-1.5">
                   Work or University Email
                 </label>
                 <div className="relative flex items-center">
-                  <Mail className="absolute left-3.5 h-4 w-4 text-gray-400" />
+                  <Mail className="pointer-events-none absolute left-3.5 h-4 w-4 text-[color:var(--color-muted)]" />
                   <input
                     type="email"
                     value={signUpEmail}
                     onChange={(e) => setSignUpEmail(e.target.value)}
                     placeholder="alex@university.edu"
                     required
-                    className="h-10 w-full rounded-xl border border-gray-300 bg-white pl-10 pr-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#10B981] focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 transition"
+                    className="cc-input min-h-10 pl-10"
                   />
                 </div>
               </div>
 
-              {/* Password */}
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600">
-                    Password
-                  </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="cc-label uppercase tracking-[0.12em]">Password</label>
                   {signUpPassword && (
-                    <span className="text-[11px] font-semibold text-gray-500">
+                    <span className="text-[11px] text-[color:var(--color-muted)]">
                       Strength:{' '}
                       <span
                         className={
                           strength.score === 3
-                            ? 'text-[#10B981]'
+                            ? 'text-[color:var(--color-ok)]'
                             : strength.score === 2
-                            ? 'text-amber-500'
-                            : 'text-red-500'
+                            ? 'text-[color:var(--color-recruiter)]'
+                            : 'text-[color:var(--color-warning)]'
                         }
                       >
                         {strength.text}
@@ -434,125 +402,89 @@ export const AuthModal: React.FC = () => {
                   )}
                 </div>
                 <div className="relative flex items-center">
-                  <Lock className="absolute left-3.5 h-4 w-4 text-gray-400" />
+                  <Lock className="pointer-events-none absolute left-3.5 h-4 w-4 text-[color:var(--color-muted)]" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={signUpPassword}
                     onChange={(e) => setSignUpPassword(e.target.value)}
                     placeholder="At least 6 characters"
                     required
-                    className="h-10 w-full rounded-xl border border-gray-300 bg-white pl-10 pr-10 text-sm text-gray-900 placeholder:text-gray-400 focus:border-[#10B981] focus:outline-none focus:ring-2 focus:ring-[#10B981]/20 transition"
+                    className="cc-input min-h-10 pl-10 pr-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 text-gray-400 hover:text-gray-600 transition"
+                    className="absolute right-3 text-[color:var(--color-muted)] hover:text-[color:var(--color-ink)] transition cursor-pointer"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
 
-                {/* Password strength bar */}
                 {signUpPassword && (
-                  <div className="mt-1.5 flex gap-1 h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full flex-1 rounded-full ${
-                        strength.score >= 1 ? strength.color : 'bg-transparent'
-                      }`}
-                    />
-                    <div
-                      className={`h-full flex-1 rounded-full ${
-                        strength.score >= 2 ? strength.color : 'bg-transparent'
-                      }`}
-                    />
-                    <div
-                      className={`h-full flex-1 rounded-full ${
-                        strength.score >= 3 ? strength.color : 'bg-transparent'
-                      }`}
-                    />
+                  <div className="mt-1.5 flex gap-1 h-1 w-full bg-[color:var(--color-source)] rounded-full overflow-hidden">
+                    <div className={`h-full flex-1 ${strength.score >= 1 ? strength.color : 'bg-transparent'}`} />
+                    <div className={`h-full flex-1 ${strength.score >= 2 ? strength.color : 'bg-transparent'}`} />
+                    <div className={`h-full flex-1 ${strength.score >= 3 ? strength.color : 'bg-transparent'}`} />
                   </div>
                 )}
               </div>
 
-              {/* Confirm Password */}
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+                <label className="cc-label block uppercase tracking-[0.12em] mb-1.5">
                   Confirm Password
                 </label>
                 <div className="relative flex items-center">
-                  <Lock className="absolute left-3.5 h-4 w-4 text-gray-400" />
+                  <Lock className="pointer-events-none absolute left-3.5 h-4 w-4 text-[color:var(--color-muted)]" />
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={signUpConfirmPassword}
                     onChange={(e) => setSignUpConfirmPassword(e.target.value)}
                     placeholder="Re-enter password"
                     required
-                    className={`h-10 w-full rounded-xl border bg-white pl-10 pr-10 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 transition ${
-                      signUpConfirmPassword &&
-                      signUpPassword !== signUpConfirmPassword
-                        ? 'border-red-400 focus:ring-red-200'
-                        : 'border-gray-300 focus:border-[#10B981] focus:ring-[#10B981]/20'
+                    className={`cc-input min-h-10 pl-10 pr-10 ${
+                      signUpConfirmPassword && signUpPassword !== signUpConfirmPassword
+                        ? 'border-[var(--color-warning)]'
+                        : ''
                     }`}
                   />
                   <button
                     type="button"
-                    onClick={() =>
-                      setShowConfirmPassword(!showConfirmPassword)
-                    }
-                    className="absolute right-3.5 text-gray-400 hover:text-gray-600 transition"
-                    aria-label={
-                      showConfirmPassword ? 'Hide password' : 'Show password'
-                    }
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 text-[color:var(--color-muted)] hover:text-[color:var(--color-ink)] transition cursor-pointer"
+                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                   >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
-                {signUpConfirmPassword &&
-                  signUpPassword === signUpConfirmPassword && (
-                    <div className="mt-1 flex items-center gap-1 text-[11px] font-medium text-[#10B981]">
-                      <CheckCircle2 className="h-3 w-3" />
-                      <span>Passwords match</span>
-                    </div>
-                  )}
+                {signUpConfirmPassword && signUpPassword === signUpConfirmPassword && (
+                  <div className="mt-1 flex items-center gap-1 text-[11px] text-[color:var(--color-ok)]">
+                    <CheckCircle2 className="h-3 w-3" />
+                    <span>Passwords match</span>
+                  </div>
+                )}
               </div>
 
-              {/* Terms Checkbox */}
               <div className="pt-1">
-                <label className="flex items-start gap-2 cursor-pointer text-xs text-gray-600">
+                <label className="flex items-start gap-2 cursor-pointer text-xs text-[color:var(--color-ink-soft)]">
                   <input
                     type="checkbox"
                     checked={agreeTerms}
                     onChange={(e) => setAgreeTerms(e.target.checked)}
-                    className="h-4 w-4 rounded border-gray-300 text-[#10B981] focus:ring-[#10B981] mt-0.5"
+                    className="mt-0.5 h-4 w-4 rounded border-[var(--color-rule-strong)] accent-[var(--color-recruiter)]"
                   />
                   <span className="leading-tight">
                     I agree to the{' '}
-                    <span className="font-semibold text-gray-800">
-                      Terms of Service
-                    </span>{' '}
-                    and{' '}
-                    <span className="font-semibold text-gray-800">
-                      Privacy Policy
-                    </span>
-                    .
+                    <span className="font-medium text-[color:var(--color-ink)]">Terms of Service</span> and{' '}
+                    <span className="font-medium text-[color:var(--color-ink)]">Privacy Policy</span>.
                   </span>
                 </label>
               </div>
 
-              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#10B981] text-sm font-bold text-white shadow-md transition hover:bg-[#059669] active:scale-[0.99] disabled:opacity-70 cursor-pointer"
+                className="cc-button cc-button--primary mt-3 w-full"
               >
                 {loading ? (
                   <>
@@ -561,7 +493,7 @@ export const AuthModal: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <span>Create Free Account</span>
+                    <span>Create Account &amp; Open Dashboard</span>
                     <ArrowRight className="h-4 w-4" />
                   </>
                 )}
@@ -569,21 +501,19 @@ export const AuthModal: React.FC = () => {
             </form>
           )}
 
-          {/* Privacy & Local AI Assurance */}
-          <div className="mt-5 flex items-center justify-center gap-1.5 text-center text-[11px] text-gray-500">
-            <ShieldCheck className="h-3.5 w-3.5 text-[#10B981]" />
+          <div className="mt-5 flex items-center justify-center gap-1.5 text-center text-[11px] text-[color:var(--color-muted)]">
+            <ShieldCheck className="h-3.5 w-3.5 text-[color:var(--color-ok)]" />
             <span>100% Client-Side Evaluation • No Raw Code Stored</span>
           </div>
 
-          {/* Toggle between modes */}
-          <div className="mt-4 border-t border-gray-100 pt-4 text-center text-xs text-gray-600">
+          <div className="mt-4 border-t border-[var(--color-rule)] pt-4 text-center text-xs text-[color:var(--color-muted)]">
             {authMode === 'signin' ? (
               <span>
-                Don't have an account yet?{' '}
+                Don&apos;t have an account yet?{' '}
                 <button
                   type="button"
                   onClick={() => handleSwitchMode('signup')}
-                  className="font-bold text-[#10B981] hover:underline cursor-pointer"
+                  className="font-medium text-[color:var(--color-recruiter)] hover:underline cursor-pointer"
                 >
                   Create one now
                 </button>
@@ -594,7 +524,7 @@ export const AuthModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => handleSwitchMode('signin')}
-                  className="font-bold text-[#10B981] hover:underline cursor-pointer"
+                  className="font-medium text-[color:var(--color-recruiter)] hover:underline cursor-pointer"
                 >
                   Sign in here
                 </button>

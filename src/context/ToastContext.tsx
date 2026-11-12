@@ -27,33 +27,36 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none">
+      <div className="fixed bottom-5 right-5 z-[70] flex flex-col gap-2 pointer-events-none">
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl bg-[#111827] text-white shadow-xl border border-gray-800 text-[14px] animate-toast-slide max-w-md"
+            className="pointer-events-auto flex items-center gap-3 rounded-[var(--radius-surface)] border border-[var(--color-rule-strong)] bg-[color:var(--color-surface)] px-4 py-3 text-xs text-[color:var(--color-ink)] shadow-2xl max-w-md"
             style={{
               animation: 'toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards',
             }}
           >
             {toast.type === 'success' && (
-              <CheckCircle2 className="h-5 w-5 text-[#10B981] shrink-0" />
+              <CheckCircle2 className="h-4 w-4 text-[color:var(--color-ok)] shrink-0" />
             )}
             {toast.type === 'error' && (
-              <AlertCircle className="h-5 w-5 text-red-400 shrink-0" />
+              <AlertCircle className="h-4 w-4 text-[color:var(--color-warning)] shrink-0" />
             )}
             {toast.type === 'info' && (
-              <Info className="h-5 w-5 text-blue-400 shrink-0" />
+              <Info className="h-4 w-4 text-[color:var(--color-instrument)] shrink-0" />
             )}
 
-            <span className="flex-1 text-sm font-medium">{toast.message}</span>
+            <span className="flex-1 leading-relaxed text-[color:var(--color-ink-soft)]">
+              {toast.message}
+            </span>
 
             <button
+              type="button"
               onClick={() => removeToast(toast.id)}
-              className="text-gray-400 hover:text-white p-1 transition"
+              className="rounded p-1 text-[color:var(--color-muted)] hover:text-[color:var(--color-ink)] transition cursor-pointer"
               aria-label="Close notification"
             >
-              <X className="h-4 w-4" />
+              <X className="h-3.5 w-3.5" />
             </button>
           </div>
         ))}

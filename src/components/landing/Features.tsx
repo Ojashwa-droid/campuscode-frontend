@@ -93,25 +93,23 @@ const Popup = ({ feature, hoveredFeature, position, origin }: PopupProps) => {
       className={`absolute z-[100] w-[270px] animate-popIn ${position}`}
       style={{ transformOrigin: origin }}
     >
-      <div className="relative rounded-[14px] border border-[#E1E6E3] bg-white p-5 text-left shadow-[0_18px_50px_rgba(18,19,22,0.13)]">
+      <div className="cc-panel relative p-5 text-left shadow-2xl border-[var(--color-rule-strong)]">
         <div className="flex items-center gap-2">
           <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full animate-pulseRing rounded-full bg-[#10B981]" />
-            <span className="relative h-1.5 w-1.5 rounded-full bg-[#10B981]" />
+            <span className="absolute inline-flex h-full w-full animate-pulseRing rounded-full bg-[color:var(--color-ok)]" />
+            <span className="relative h-1.5 w-1.5 rounded-full bg-[color:var(--color-ok)]" />
           </span>
 
-          <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-[#10B981]">
+          <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-[color:var(--color-ok)]">
             Signal detected
           </span>
         </div>
 
-        <h3 className="mt-2.5 text-[14px] font-semibold text-[#121316]">
+        <h3 className="mt-2.5 text-sm font-medium text-[color:var(--color-ink)]">
           {feature.title}
         </h3>
 
-        <p className="mt-2 text-[12px] leading-[1.65] text-[#6B7280]">
-          {feature.description}
-        </p>
+        <p className="cc-copy mt-2 text-xs">{feature.description}</p>
       </div>
     </div>
   );
@@ -143,52 +141,61 @@ const Features = () => {
   const iconActive = (id: string): boolean => hoveredFeature === id;
 
   return (
-    <section
-      id="features"
-      className="relative overflow-hidden bg-[#FAFAF8] px-6 py-16"
-    >
-      <div
-        className="pointer-events-none absolute inset-0 opacity-50"
-        style={{
-          backgroundImage: 'radial-gradient(circle, #D9DED9 1px, transparent 1px)',
-          backgroundSize: '22px 22px',
-          maskImage: 'linear-gradient(to bottom, black 0%, black 75%, transparent 100%)',
-        }}
-      />
-
-      <div className="relative mx-auto max-w-[1180px]">
+    <section id="features" className="cc-section relative overflow-hidden">
+      <div className="cc-container relative">
         <div className="max-w-[700px]">
           <div className="flex items-center gap-3">
-            <span className="h-px w-9 bg-[#10B981]" />
-            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-[#047857]">
+            <span className="h-px w-9 bg-[color:var(--color-instrument)]" />
+            <p className="cc-label uppercase tracking-[0.2em] text-[color:var(--color-instrument)]">
               Engineering intelligence
             </p>
           </div>
 
-          <h2 className="mt-5 text-3xl font-extrabold leading-[1.08] tracking-[-0.045em] text-[#121316] sm:text-[42px]">
+          <h2 className="cc-heading mt-5">
             What CampusCode
             <br />
-            <span className="text-[#10B981]">actually checks.</span>
+            <span className="text-[color:var(--color-ok)]">actually checks.</span>
           </h2>
 
-          <p className="mt-5 max-w-[610px] text-[16px] leading-7 text-[#6B7280]">
-            Your repository becomes a living map of dependencies, engineering signals,
-            and evidence-backed findings.
+          <p className="cc-lead">
+            Your repository becomes a living map of dependencies, engineering signals, and
+            evidence-backed findings.
           </p>
         </div>
 
-        <div className="relative mt-16 h-[820px] overflow-visible rounded-[30px] border border-[#DDE3DF] bg-white/85 shadow-[0_20px_70px_rgba(18,19,22,0.035)]">
-          <div className="pointer-events-none absolute left-1/2 top-1/2 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#10B981]/[0.035] blur-3xl" />
+        {/* Mobile & Tablet Fallback Grid */}
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:hidden">
+          {features.map((feature) => {
+            const Icon = feature.icon;
+            return (
+              <article key={feature.id} className="cc-panel p-5 text-left">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-rule)] bg-[color:var(--color-source)] text-[color:var(--color-instrument)]">
+                    <Icon size={15} />
+                  </span>
+                  <h3 className="text-sm font-medium text-[color:var(--color-ink)]">
+                    {feature.title}
+                  </h3>
+                </div>
+                <p className="cc-copy mt-3 text-xs">{feature.description}</p>
+              </article>
+            );
+          })}
+        </div>
+
+        {/* Desktop Interactive SVG Orchestrator Diagram */}
+        <div className="cc-source relative mt-14 hidden h-[820px] overflow-visible lg:block">
+          <div className="pointer-events-none absolute left-1/2 top-1/2 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[color:var(--color-instrument)]/[0.04] blur-3xl" />
 
           <div className="absolute left-1/2 top-[30px] z-10 -translate-x-1/2">
-            <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-[#9CA3AF]">
+            <span className="cc-label text-[10px] uppercase tracking-[0.18em]">
               Detection layer
             </span>
           </div>
 
           <div className="absolute left-1/2 top-[636px] z-10 -translate-x-1/2">
-            <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-[#9CA3AF]">
-              Trust & output layer
+            <span className="cc-label text-[10px] uppercase tracking-[0.18em]">
+              Trust &amp; output layer
             </span>
           </div>
 
@@ -198,29 +205,29 @@ const Features = () => {
             fill="none"
             preserveAspectRatio="none"
           >
-            <path d="M204 144 V262 H680 V379" stroke="#D8DEDA" strokeWidth="1.5" strokeDasharray="5 6" />
-            <path d="M680 144 V379" stroke="#D8DEDA" strokeWidth="1.5" strokeDasharray="5 6" />
-            <path d="M1156 144 V262 H680 V379" stroke="#D8DEDA" strokeWidth="1.5" strokeDasharray="5 6" />
-            <path d="M680 441 V559 H204 V676" stroke="#D8DEDA" strokeWidth="1.5" strokeDasharray="5 6" />
-            <path d="M680 441 V676" stroke="#D8DEDA" strokeWidth="1.5" strokeDasharray="5 6" />
-            <path d="M680 441 V559 H1156 V676" stroke="#D8DEDA" strokeWidth="1.5" strokeDasharray="5 6" />
+            <path d="M204 144 V262 H680 V379" stroke="var(--color-rule-strong)" strokeWidth="1.5" strokeDasharray="5 6" />
+            <path d="M680 144 V379" stroke="var(--color-rule-strong)" strokeWidth="1.5" strokeDasharray="5 6" />
+            <path d="M1156 144 V262 H680 V379" stroke="var(--color-rule-strong)" strokeWidth="1.5" strokeDasharray="5 6" />
+            <path d="M680 441 V559 H204 V676" stroke="var(--color-rule-strong)" strokeWidth="1.5" strokeDasharray="5 6" />
+            <path d="M680 441 V676" stroke="var(--color-rule-strong)" strokeWidth="1.5" strokeDasharray="5 6" />
+            <path d="M680 441 V559 H1156 V676" stroke="var(--color-rule-strong)" strokeWidth="1.5" strokeDasharray="5 6" />
 
             {hoveredFeature && (
               <g key={hoveredFeature}>
                 <path
                   d={getActivePath()}
-                  stroke="#10B981"
+                  stroke="var(--color-ok)"
                   strokeWidth="2"
                   strokeLinecap="round"
                   pathLength="1"
                   strokeDasharray="1"
                   className="animate-drawPath"
-                  filter="url(#glow)"
+                  filter="url(#cc-signal-glow)"
                 />
-                <circle r="3.5" fill="#10B981" filter="url(#glow)">
+                <circle r="3.5" fill="var(--color-ok)" filter="url(#cc-signal-glow)">
                   <animateMotion
                     dur="1.3s"
-                    begin="0.4s"
+                    begin="0.35s"
                     repeatCount="indefinite"
                     path={getActivePath()}
                   />
@@ -229,8 +236,8 @@ const Features = () => {
             )}
 
             <defs>
-              <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="1.6" result="blur" />
+              <filter id="cc-signal-glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="1.8" result="blur" />
                 <feMerge>
                   <feMergeNode in="blur" />
                   <feMergeNode in="SourceGraphic" />
@@ -239,279 +246,138 @@ const Features = () => {
             </defs>
           </svg>
 
-          <div className="absolute right-6 top-6 z-20 flex items-center gap-2 rounded-full border border-[#E5E7EB] bg-white px-4 py-2 shadow-[0_4px_15px_rgba(18,19,22,0.04)]">
+          {/* Status Pill */}
+          <div className="cc-panel absolute right-6 top-6 z-20 flex items-center gap-2 rounded-full px-4 py-2">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-pulseRing rounded-full bg-[#10B981]" />
-              <span className="relative h-2 w-2 rounded-full bg-[#10B981]" />
+              <span className="absolute inline-flex h-full w-full animate-pulseRing rounded-full bg-[color:var(--color-ok)]" />
+              <span className="relative h-2 w-2 rounded-full bg-[color:var(--color-ok)]" />
             </span>
-            <span className="font-mono text-[9px] font-medium uppercase tracking-[0.13em] text-[#6B7280]">
+            <span className="cc-label text-[10px] uppercase tracking-[0.13em]">
               Analysis running
             </span>
           </div>
 
-          <div
-            className={`absolute left-[15%] top-[90px] w-[205px] -translate-x-1/2 transition-[z-index] ${cardZ('architecture')}`}
-            onMouseEnter={() => setHoveredFeature('architecture')}
-            onMouseLeave={() => setHoveredFeature(null)}
-          >
-            <button
-              type="button"
-              className={`relative z-30 flex w-full items-center gap-2.5 rounded-[13px] border bg-white px-4 py-3.5 text-left shadow-[0_6px_22px_rgba(18,19,22,0.055)] transition-all duration-300 ${
-                hoveredFeature === 'architecture'
-                  ? 'border-[#8DDDC5] -translate-y-0.5 shadow-[0_10px_30px_rgba(16,185,129,0.13)]'
-                  : 'border-[#E5E7EB]'
-              }`}
-            >
-              <span
-                className={`flex h-8 w-8 items-center justify-center rounded-[8px] transition-all duration-300 ${
-                  iconActive('architecture')
-                    ? 'bg-[#10B981]/10 text-[#10B981] -translate-y-0.5'
-                    : 'bg-[#F5F6F5] text-[#6B7280]'
-                }`}
+          {/* Top Row Cards */}
+          {[
+            { feature: features[0], left: 'left-[15%]', popupPos: 'top-[calc(100%+18px)] left-1/2 -translate-x-1/2', origin: 'top center' },
+            { feature: features[1], left: 'left-1/2', popupPos: 'top-[calc(100%+18px)] left-0', origin: 'top left' },
+            { feature: features[2], left: 'left-[85%]', popupPos: 'top-[calc(100%+18px)] left-1/2 -translate-x-1/2', origin: 'top center' },
+          ].map(({ feature, left, popupPos, origin }) => {
+            const Icon = feature.icon;
+            const active = iconActive(feature.id);
+            return (
+              <div
+                key={feature.id}
+                className={`absolute ${left} top-[90px] w-[210px] -translate-x-1/2 transition-[z-index] ${cardZ(feature.id)}`}
+                onMouseEnter={() => setHoveredFeature(feature.id)}
+                onMouseLeave={() => setHoveredFeature(null)}
               >
-                <Network size={15} />
-              </span>
-              <span className="text-[13px] font-semibold text-[#25272A]">Architecture</span>
-            </button>
+                <button
+                  type="button"
+                  onFocus={() => setHoveredFeature(feature.id)}
+                  onBlur={() => setHoveredFeature(null)}
+                  className={`cc-panel relative z-30 flex w-full items-center gap-2.5 px-4 py-3.5 text-left transition-all duration-300 cursor-pointer ${
+                    active
+                      ? 'border-[var(--color-ok)] -translate-y-0.5 bg-[color:var(--color-surface)]'
+                      : 'hover:border-[var(--color-rule-strong)]'
+                  }`}
+                >
+                  <span
+                    className={`flex h-8 w-8 items-center justify-center rounded-[var(--radius-control)] transition-all duration-300 ${
+                      active
+                        ? 'bg-[color:var(--color-ok-soft)] text-[color:var(--color-ok)]'
+                        : 'bg-[color:var(--color-source)] text-[color:var(--color-muted)]'
+                    }`}
+                  >
+                    <Icon size={15} />
+                  </span>
+                  <span className="text-xs font-medium text-[color:var(--color-ink)]">
+                    {feature.label}
+                  </span>
+                </button>
 
-            <Popup
-              feature={features[0]}
-              hoveredFeature={hoveredFeature}
-              position="top-[calc(100%+18px)] left-1/2 -translate-x-1/2"
-              origin="top center"
-            />
-          </div>
+                <Popup
+                  feature={feature}
+                  hoveredFeature={hoveredFeature}
+                  position={popupPos}
+                  origin={origin}
+                />
+              </div>
+            );
+          })}
 
-          <div
-            className={`absolute left-1/2 top-[90px] w-[205px] -translate-x-1/2 transition-[z-index] ${cardZ('concurrency')}`}
-            onMouseEnter={() => setHoveredFeature('concurrency')}
-            onMouseLeave={() => setHoveredFeature(null)}
-          >
-            <button
-              type="button"
-              className={`relative z-30 flex w-full items-center gap-2.5 rounded-[13px] border bg-white px-4 py-3.5 text-left shadow-[0_6px_22px_rgba(18,19,22,0.055)] transition-all duration-300 ${
-                hoveredFeature === 'concurrency'
-                  ? 'border-[#8DDDC5] -translate-y-0.5 shadow-[0_10px_30px_rgba(16,185,129,0.13)]'
-                  : 'border-[#E5E7EB]'
-              }`}
-            >
-              <span
-                className={`flex h-8 w-8 items-center justify-center rounded-[8px] transition-all duration-300 ${
-                  iconActive('concurrency')
-                    ? 'bg-[#10B981]/10 text-[#10B981] -translate-y-0.5'
-                    : 'bg-[#F5F6F5] text-[#6B7280]'
-                }`}
-              >
-                <Zap size={15} />
-              </span>
-              <span className="text-[13px] font-semibold text-[#25272A]">Concurrency</span>
-            </button>
-
-            <Popup
-              feature={features[1]}
-              hoveredFeature={hoveredFeature}
-              position="top-[calc(100%+18px)] left-0"
-              origin="top left"
-            />
-          </div>
-
-          <div
-            className={`absolute left-[85%] top-[90px] w-[205px] -translate-x-1/2 transition-[z-index] ${cardZ('testing')}`}
-            onMouseEnter={() => setHoveredFeature('testing')}
-            onMouseLeave={() => setHoveredFeature(null)}
-          >
-            <button
-              type="button"
-              className={`relative z-30 flex w-full items-center gap-2.5 rounded-[13px] border bg-white px-4 py-3.5 text-left shadow-[0_6px_22px_rgba(18,19,22,0.055)] transition-all duration-300 ${
-                hoveredFeature === 'testing'
-                  ? 'border-[#8DDDC5] -translate-y-0.5 shadow-[0_10px_30px_rgba(16,185,129,0.13)]'
-                  : 'border-[#E5E7EB]'
-              }`}
-            >
-              <span
-                className={`flex h-8 w-8 items-center justify-center rounded-[8px] transition-all duration-300 ${
-                  iconActive('testing')
-                    ? 'bg-[#10B981]/10 text-[#10B981] -translate-y-0.5'
-                    : 'bg-[#F5F6F5] text-[#6B7280]'
-                }`}
-              >
-                <ShieldCheck size={15} />
-              </span>
-              <span className="text-[13px] font-semibold text-[#25272A]">Testing</span>
-            </button>
-
-            <Popup
-              feature={features[2]}
-              hoveredFeature={hoveredFeature}
-              position="top-[calc(100%+18px)] left-1/2 -translate-x-1/2"
-              origin="top center"
-            />
-          </div>
-
+          {/* Center Orchestrator Hub */}
           <div className="absolute left-1/2 top-[379px] z-20 -translate-x-1/2">
-            <div className="absolute -inset-4 rounded-[18px] bg-[#10B981]/[0.045] blur-xl" />
-            <div className="absolute inset-0 animate-breathe rounded-[14px] bg-[#10B981]/10" />
-            <div className="relative flex h-[62px] w-[280px] items-center justify-center gap-2.5 rounded-[13px] border border-[#1E293B] bg-[#111827] px-5 shadow-[0_15px_40px_rgba(17,24,39,0.2)]">
-              <span className="font-mono text-[16px] text-[#34D399]">$</span>
-              <span className="text-[13px] font-semibold tracking-[-0.015em] text-white">
+            <div className="absolute -inset-4 rounded-[18px] bg-[color:var(--color-ok)]/[0.06] blur-xl" />
+            <div className="absolute inset-0 animate-breathe rounded-[14px] bg-[color:var(--color-ok)]/10" />
+            <div className="cc-panel relative flex h-[62px] w-[290px] items-center justify-center gap-2.5 border-[var(--color-rule-strong)] bg-[color:var(--color-ground)] px-5 shadow-2xl">
+              <span className="text-base text-[color:var(--color-ok)]">$</span>
+              <span className="text-xs font-medium tracking-[-0.015em] text-[color:var(--color-ink)]">
                 CampusCode Orchestrator
               </span>
               <span className="absolute right-3.5 flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-pulseRing rounded-full bg-[#34D399]" />
-                <span className="relative h-2 w-2 rounded-full bg-[#34D399]" />
+                <span className="absolute inline-flex h-full w-full animate-pulseRing rounded-full bg-[color:var(--color-ok)]" />
+                <span className="relative h-2 w-2 rounded-full bg-[color:var(--color-ok)]" />
               </span>
             </div>
           </div>
 
-          <div
-            className={`absolute left-[15%] top-[676px] w-[205px] -translate-x-1/2 transition-[z-index] ${cardZ('clean')}`}
-            onMouseEnter={() => setHoveredFeature('clean')}
-            onMouseLeave={() => setHoveredFeature(null)}
-          >
-            <button
-              type="button"
-              className={`flex w-full items-center gap-2.5 rounded-[13px] border bg-white px-4 py-3.5 text-left shadow-[0_6px_22px_rgba(18,19,22,0.055)] transition-all duration-300 ${
-                hoveredFeature === 'clean'
-                  ? 'border-[#8DDDC5] translate-y-0.5 shadow-[0_10px_30px_rgba(16,185,129,0.13)]'
-                  : 'border-[#E5E7EB]'
-              }`}
-            >
-              <span
-                className={`flex h-8 w-8 items-center justify-center rounded-[8px] transition-all duration-300 ${
-                  iconActive('clean')
-                    ? 'bg-[#10B981]/10 text-[#10B981] translate-y-0.5'
-                    : 'bg-[#F5F6F5] text-[#6B7280]'
-                }`}
+          {/* Bottom Row Cards */}
+          {[
+            { feature: features[3], left: 'left-[15%]', popupPos: 'bottom-[calc(100%+18px)] left-1/2 -translate-x-1/2', origin: 'bottom center' },
+            { feature: features[4], left: 'left-1/2', popupPos: 'bottom-[calc(100%+18px)] left-0', origin: 'bottom left' },
+            { feature: features[5], left: 'left-[85%]', popupPos: 'bottom-[calc(100%+18px)] left-1/2 -translate-x-1/2', origin: 'bottom center' },
+          ].map(({ feature, left, popupPos, origin }) => {
+            const Icon = feature.icon;
+            const active = iconActive(feature.id);
+            return (
+              <div
+                key={feature.id}
+                className={`absolute ${left} top-[676px] w-[210px] -translate-x-1/2 transition-[z-index] ${cardZ(feature.id)}`}
+                onMouseEnter={() => setHoveredFeature(feature.id)}
+                onMouseLeave={() => setHoveredFeature(null)}
               >
-                <Code2 size={15} />
-              </span>
-              <span className="text-[13px] font-semibold text-[#25272A]">Clean Code</span>
-            </button>
+                <button
+                  type="button"
+                  onFocus={() => setHoveredFeature(feature.id)}
+                  onBlur={() => setHoveredFeature(null)}
+                  className={`cc-panel flex w-full items-center gap-2.5 px-4 py-3.5 text-left transition-all duration-300 cursor-pointer ${
+                    active
+                      ? 'border-[var(--color-ok)] translate-y-0.5 bg-[color:var(--color-surface)]'
+                      : 'hover:border-[var(--color-rule-strong)]'
+                  }`}
+                >
+                  <span
+                    className={`flex h-8 w-8 items-center justify-center rounded-[var(--radius-control)] transition-all duration-300 ${
+                      active
+                        ? 'bg-[color:var(--color-ok-soft)] text-[color:var(--color-ok)]'
+                        : 'bg-[color:var(--color-source)] text-[color:var(--color-muted)]'
+                    }`}
+                  >
+                    <Icon size={15} />
+                  </span>
+                  <span className="text-xs font-medium text-[color:var(--color-ink)]">
+                    {feature.label}
+                  </span>
+                </button>
 
-            <Popup
-              feature={features[3]}
-              hoveredFeature={hoveredFeature}
-              position="bottom-[calc(100%+18px)] left-1/2 -translate-x-1/2"
-              origin="bottom center"
-            />
-          </div>
-
-          <div
-            className={`absolute left-1/2 top-[676px] w-[205px] -translate-x-1/2 transition-[z-index] ${cardZ('evidence')}`}
-            onMouseEnter={() => setHoveredFeature('evidence')}
-            onMouseLeave={() => setHoveredFeature(null)}
-          >
-            <button
-              type="button"
-              className={`flex w-full items-center gap-2.5 rounded-[13px] border bg-white px-4 py-3.5 text-left shadow-[0_6px_22px_rgba(18,19,22,0.055)] transition-all duration-300 ${
-                hoveredFeature === 'evidence'
-                  ? 'border-[#8DDDC5] translate-y-0.5 shadow-[0_10px_30px_rgba(16,185,129,0.13)]'
-                  : 'border-[#E5E7EB]'
-              }`}
-            >
-              <span
-                className={`flex h-8 w-8 items-center justify-center rounded-[8px] transition-all duration-300 ${
-                  iconActive('evidence')
-                    ? 'bg-[#10B981]/10 text-[#10B981] translate-y-0.5'
-                    : 'bg-[#F5F6F5] text-[#6B7280]'
-                }`}
-              >
-                <Link2 size={15} />
-              </span>
-              <span className="text-[13px] font-semibold text-[#25272A]">Line Proofs</span>
-            </button>
-
-            <Popup
-              feature={features[4]}
-              hoveredFeature={hoveredFeature}
-              position="bottom-[calc(100%+18px)] left-0"
-              origin="bottom left"
-            />
-          </div>
-
-          <div
-            className={`absolute left-[85%] top-[676px] w-[205px] -translate-x-1/2 transition-[z-index] ${cardZ('private')}`}
-            onMouseEnter={() => setHoveredFeature('private')}
-            onMouseLeave={() => setHoveredFeature(null)}
-          >
-            <button
-              type="button"
-              className={`flex w-full items-center gap-2.5 rounded-[13px] border bg-white px-4 py-3.5 text-left shadow-[0_6px_22px_rgba(18,19,22,0.055)] transition-all duration-300 ${
-                hoveredFeature === 'private'
-                  ? 'border-[#8DDDC5] translate-y-0.5 shadow-[0_10px_30px_rgba(16,185,129,0.13)]'
-                  : 'border-[#E5E7EB]'
-              }`}
-            >
-              <span
-                className={`flex h-8 w-8 items-center justify-center rounded-[8px] transition-all duration-300 ${
-                  iconActive('private')
-                    ? 'bg-[#10B981]/10 text-[#10B981] translate-y-0.5'
-                    : 'bg-[#F5F6F5] text-[#6B7280]'
-                }`}
-              >
-                <Lock size={15} />
-              </span>
-              <span className="text-[13px] font-semibold text-[#25272A]">100% Private</span>
-            </button>
-
-            <Popup
-              feature={features[5]}
-              hoveredFeature={hoveredFeature}
-              position="bottom-[calc(100%+18px)] left-1/2 -translate-x-1/2"
-              origin="bottom center"
-            />
-          </div>
+                <Popup
+                  feature={feature}
+                  hoveredFeature={hoveredFeature}
+                  position={popupPos}
+                  origin={origin}
+                />
+              </div>
+            );
+          })}
 
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
-            <p className="whitespace-nowrap font-mono text-[9px] font-medium uppercase tracking-[0.16em] text-[#9CA3AF]">
+            <p className="cc-label whitespace-nowrap text-[10px] uppercase tracking-[0.16em]">
               Hover a signal to inspect
             </p>
           </div>
         </div>
       </div>
-
-      <style>{`
-        @keyframes drawPath {
-          from { stroke-dashoffset: 1; }
-          to { stroke-dashoffset: 0; }
-        }
-        .animate-drawPath {
-          animation: drawPath 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes popIn {
-          from { opacity: 0; transform: scale(0.94); filter: blur(3px); }
-          to { opacity: 1; transform: scale(1); filter: blur(0); }
-        }
-        .animate-popIn {
-          animation: popIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes pulseRing {
-          0% { transform: scale(1); opacity: 0.55; }
-          100% { transform: scale(2.4); opacity: 0; }
-        }
-        .animate-pulseRing {
-          animation: pulseRing 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-        @keyframes breathe {
-          0%, 100% { opacity: 0.35; transform: scale(1); }
-          50% { opacity: 0.75; transform: scale(1.02); }
-        }
-        .animate-breathe {
-          animation: breathe 3.4s ease-in-out infinite;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .animate-drawPath,
-          .animate-popIn,
-          .animate-pulseRing,
-          .animate-breathe {
-            animation: none !important;
-          }
-        }
-      `}</style>
     </section>
   );
 };

@@ -1,127 +1,115 @@
+import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faGithub,
-  faLinkedinIn,
-} from '@fortawesome/free-brands-svg-icons';
+import { faGithub, faLinkedinIn } from '@fortawesome/free-brands-svg-icons';
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../context/useAuth';
 
 const Footer = () => {
-  const { openDemoModal, openAuthModal, openGithubModal } = useAuth();
+  const { openDemoModal, openAuthModal, openGithubModal, isAuthenticated } = useAuth();
+
   return (
-    <footer className="bg-[#111827] px-6 py-14 text-white">
-      <div className="mx-auto max-w-[1120px]">
-
-        {/* Main Footer */}
+    <footer className="border-t border-[var(--color-rule)] bg-[color:var(--color-source)] px-6 py-14 text-[color:var(--color-ink)]">
+      <div className="cc-container">
         <div className="grid gap-10 md:grid-cols-[1.5fr_1fr_1fr]">
-
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2">
-
-              <span className="text-xl font-extrabold tracking-[-0.04em]">
-                CampusCode
-              </span>
-
-              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-white text-[9px] font-bold text-[#111827]">
+            <div className="flex items-center gap-2.5">
+              <img src="/assets/logo.png" alt="" width={22} height={22} className="h-5 w-5 invert" />
+              <span className="cc-title text-base">CampusCode</span>
+              <span className="rounded-[var(--radius-control)] border border-[var(--color-rule)] bg-[color:var(--color-surface)] px-1.5 py-0.5 text-[9px] font-medium text-[color:var(--color-instrument)]">
                 AI
               </span>
-
             </div>
 
-            <p className="mt-4 max-w-[360px] text-sm leading-6 text-[#9CA3AF]">
-              Turn real codebases into verified, explainable
-              engineering profiles for students and recruiters.
+            <p className="cc-copy mt-4 max-w-[360px] text-xs">
+              Turn real codebases into verified, explainable engineering profiles for students and
+              recruiters.
             </p>
           </div>
 
           {/* Product */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.15em] text-white">
-              Product
-            </h3>
+            <h3 className="cc-label uppercase tracking-[0.15em]">Product</h3>
 
-            <div className="mt-4 space-y-3 text-sm text-[#9CA3AF]">
-
-              <a
-                href="#features"
-                className="block transition hover:text-white"
-              >
+            <div className="mt-4 space-y-2.5 text-xs">
+              <a href="/#features" className="cc-link block no-underline">
                 Features
               </a>
 
               <button
                 type="button"
                 onClick={openDemoModal}
-                className="block text-left transition hover:text-white cursor-pointer"
+                className="cc-link block text-left cursor-pointer"
               >
                 Live Interactive Demo
               </button>
 
-              <button
-                type="button"
-                onClick={() => openAuthModal('signup')}
-                className="block text-left transition hover:text-white cursor-pointer"
-              >
-                Create Account
-              </button>
+              {isAuthenticated ? (
+                <Link to="/dashboard" className="cc-link block no-underline">
+                  Engineering Dashboard
+                </Link>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => openAuthModal('signup')}
+                    className="cc-link block text-left cursor-pointer"
+                  >
+                    Create Account
+                  </button>
 
-              <button
-                type="button"
-                onClick={openGithubModal}
-                className="block text-left transition hover:text-white cursor-pointer"
-              >
-                Sign in with GitHub
-              </button>
-
+                  <button
+                    type="button"
+                    onClick={openGithubModal}
+                    className="cc-link block text-left cursor-pointer"
+                  >
+                    Sign in with GitHub
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
           {/* Connect */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.15em] text-white">
-              Connect
-            </h3>
+            <h3 className="cc-label uppercase tracking-[0.15em]">Connect</h3>
 
-            <div className="mt-4 flex gap-3">
-
-              {/* GitHub */}
+            <div className="mt-4 flex gap-2.5">
               <a
-                href="#"
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="GitHub"
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#374151] text-[#9CA3AF] transition hover:border-[#10B981] hover:text-white"
+                className="cc-button cc-button--quiet min-h-9 w-9 px-0"
               >
                 <FontAwesomeIcon icon={faGithub} />
               </a>
 
-              {/* LinkedIn */}
               <a
-                href="#"
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="LinkedIn"
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#374151] text-[#9CA3AF] transition hover:border-[#10B981] hover:text-white"
+                className="cc-button cc-button--quiet min-h-9 w-9 px-0"
               >
                 <FontAwesomeIcon icon={faLinkedinIn} />
               </a>
 
-              {/* Email */}
               <a
-                href="#"
+                href="mailto:hello@campuscode.ai"
                 aria-label="Email"
-                className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#374151] text-[#9CA3AF] transition hover:border-[#10B981] hover:text-white"
+                className="cc-button cc-button--quiet min-h-9 w-9 px-0"
               >
                 <FontAwesomeIcon icon={faEnvelope} />
               </a>
-
             </div>
           </div>
-
         </div>
 
-        {/* Bottom */}
-        <div className="mt-12 border-t border-[#374151] pt-5 text-xs text-[#6B7280]">
-          © 2026 CampusCode. Built for verifiable engineering.
+        <div className="mt-12 flex flex-col gap-2 border-t border-[var(--color-rule)] pt-5 text-xs text-[color:var(--color-muted)] sm:flex-row sm:items-center sm:justify-between">
+          <span>© 2026 CampusCode. Built for verifiable engineering.</span>
+          <span>Console Graphite Evidence System</span>
         </div>
-
       </div>
     </footer>
   );

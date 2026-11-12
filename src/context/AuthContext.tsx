@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { User, AuthMode } from '../types/auth';
 import { useToast } from './useToast';
 import { AuthContext } from './useAuth';
@@ -24,8 +25,8 @@ const DEFAULT_USERS: StoredUserRecord[] = [
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { showToast } = useToast();
+  const navigate = useNavigate();
 
-  // Lazy initialize user from localStorage without cascading renders
   const [user, setUser] = useState<User | null>(() => {
     try {
       const activeSession = localStorage.getItem(STORAGE_KEY_USER);
@@ -40,7 +41,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isGithubModalOpen, setIsGithubModalOpen] = useState(false);
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
 
-  // Initialize DB only if empty
   useEffect(() => {
     try {
       const existingDb = localStorage.getItem(STORAGE_KEY_USERS_DB);
@@ -78,7 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    await new Promise((resolve) => setTimeout(resolve, 600));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     try {
       const dbRaw = localStorage.getItem(STORAGE_KEY_USERS_DB);
@@ -100,7 +100,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: foundUser.id,
         name: foundUser.name,
         email: foundUser.email,
-        avatar: foundUser.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(foundUser.name)}`,
+        avatar:
+          foundUser.avatar ||
+          `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(foundUser.name)}`,
         provider: 'email',
         createdAt: foundUser.createdAt,
       };
@@ -108,7 +110,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(sessionUser);
       localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(sessionUser));
       setIsAuthModalOpen(false);
-      showToast(`Welcome back, ${sessionUser.name}!`, 'success');
+      showToast(`Welcome back, ${sessionUser.name}! Opening dashboard.`, 'success');
+      navigate('/dashboard');
       return { success: true };
     } catch {
       return { success: false, error: 'An unexpected error occurred during sign in.' };
@@ -120,7 +123,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     email: string,
     password: string
   ): Promise<{ success: boolean; error?: string }> => {
-    await new Promise((resolve) => setTimeout(resolve, 700));
+    await new Promise((resolve) => setTimeout(resolve, 600));
 
     try {
       const dbRaw = localStorage.getItem(STORAGE_KEY_USERS_DB);
@@ -138,7 +141,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         name: name.trim(),
         email: trimmedEmail,
         passwordHash: password,
-        avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name.trim())}&backgroundColor=10b981`,
+        avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name.trim())}&backgroundColor=18181b`,
         provider: 'email',
         createdAt: new Date().toISOString(),
       };
@@ -158,7 +161,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(sessionUser);
       localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(sessionUser));
       setIsAuthModalOpen(false);
-      showToast(`Account created successfully! Welcome to CampusCode, ${newUser.name}.`, 'success');
+      showToast(`Account created! Welcome to CampusCode, ${newUser.name}.`, 'success');
+      navigate('/dashboard');
       return { success: true };
     } catch {
       return { success: false, error: 'Failed to create account. Please try again.' };
@@ -166,7 +170,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const loginWithGithub = async (handle: string = 'octodev'): Promise<{ success: boolean }> => {
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    await new Promise((resolve) => setTimeout(resolve, 650));
 
     const cleanHandle = handle.trim().replace(/^@/, '') || 'octodev';
     const githubUser: User = {
@@ -184,6 +188,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsGithubModalOpen(false);
     setIsAuthModalOpen(false);
     showToast(`Connected with GitHub as @${cleanHandle}!`, 'success');
+    navigate('/dashboard');
     return { success: true };
   };
 
@@ -191,7 +196,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     localStorage.removeItem(STORAGE_KEY_USER);
     showToast('You have been signed out.', 'info');
-  }, [showToast]);
+    navigate('/');
+  }, [showToast, navigate]);
 
   return (
     <AuthContext.Provider
