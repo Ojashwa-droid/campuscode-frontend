@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Navbar from '../components/landing/Navbar';
-import Footer from '../components/landing/Footer';
+import FooterInteractive from '../components/landing/FooterInteractive';
 import { StaticDotGrid } from '../components/ui/StaticDotGrid';
 import { AnalyzeBar } from '../components/dashboard/AnalyzeBar';
 import { ActiveTask } from '../components/dashboard/ActiveTask';
@@ -245,7 +245,7 @@ export default function Scorecard() {
         </div>
       </main>
 
-      <Footer />
+      <FooterInteractive />
     </div>
   );
 }

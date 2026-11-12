@@ -11,6 +11,7 @@ import {
   Play,
   ShieldCheck,
   LayoutDashboard,
+  FileCode2,
 } from 'lucide-react';
 import { useAuth } from '../../context/useAuth';
 
@@ -43,91 +44,74 @@ const Navbar = () => {
   const isDashboard = pathname === '/dashboard';
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[var(--color-rule)] bg-[color:var(--color-ground)]/95 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-[var(--color-rule)] bg-[color:var(--color-ground)]/95 backdrop-blur-sm">
       <div className="cc-container flex min-h-16 items-center justify-between gap-4">
         {/* Brand */}
         <Link
           to="/"
           onClick={() => setIsMobileMenuOpen(false)}
-          className="flex shrink-0 items-center gap-2.5 no-underline"
+          className="flex shrink-0 items-center gap-2 no-underline"
         >
           <img src="/assets/logo.png" alt="CampusCode" width={24} height={24} className="h-6 w-6 invert" />
-          <span className="text-sm font-semibold tracking-[-0.04em] text-[color:var(--color-ink)]">
+          <span className="text-sm font-medium tracking-[-0.05em] text-[color:var(--color-ink)]">
             CampusCode
-          </span>
-          <span className="rounded-[var(--radius-control)] border border-[var(--color-rule-strong)] bg-[color:var(--color-surface)] px-1.5 py-0.5 text-[10px] font-medium text-[color:var(--color-instrument)]">
-            AI
           </span>
         </Link>
 
         {/* Desktop Nav */}
-        <nav aria-label="Primary navigation" className="hidden items-center gap-6 lg:flex">
-          {!isDashboard ? (
-            <>
-              <a
-                href="#how-it-works"
-                className="text-xs text-[color:var(--color-muted)] transition-colors hover:text-[color:var(--color-ink)] no-underline"
-              >
-                How it works
-              </a>
-              <a
-                href="#features"
-                className="text-xs text-[color:var(--color-muted)] transition-colors hover:text-[color:var(--color-ink)] no-underline"
-              >
-                Features
-              </a>
-              <a
-                href="#faq"
-                className="text-xs text-[color:var(--color-muted)] transition-colors hover:text-[color:var(--color-ink)] no-underline"
-              >
-                FAQ
-              </a>
-            </>
-          ) : (
-            <>
-              <Link
-                to="/"
-                className="text-xs text-[color:var(--color-muted)] transition-colors hover:text-[color:var(--color-ink)] no-underline"
-              >
-                Overview
-              </Link>
-              <Link
-                to="/dashboard"
-                className="rounded-[var(--radius-control)] bg-[color:var(--color-surface)] px-3 py-1.5 text-xs text-[color:var(--color-ink)] border border-[var(--color-rule)] no-underline"
-              >
-                Dashboard
-              </Link>
-            </>
+        <nav aria-label="Primary navigation" className="hidden items-center gap-1 lg:flex">
+          <Link
+            to="/"
+            className={`rounded-[var(--radius-control)] px-3 py-2 text-xs no-underline transition-colors duration-150 ${
+              pathname === '/'
+                ? 'bg-[color:var(--color-surface)] text-[color:var(--color-ink)]'
+                : 'text-[color:var(--color-muted)] hover:text-[color:var(--color-ink)]'
+            }`}
+          >
+            Overview
+          </Link>
+
+          {isAuthenticated && (
+            <Link
+              to="/dashboard"
+              className={`rounded-[var(--radius-control)] px-3 py-2 text-xs no-underline transition-colors duration-150 ${
+                isDashboard
+                  ? 'bg-[color:var(--color-surface)] text-[color:var(--color-ink)]'
+                  : 'text-[color:var(--color-muted)] hover:text-[color:var(--color-ink)]'
+              }`}
+            >
+              Dashboard
+            </Link>
           )}
 
           <button
             type="button"
             onClick={openDemoModal}
-            className="flex items-center gap-1.5 text-xs font-medium text-[color:var(--color-ok)] hover:text-[color:var(--color-ink)] transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 rounded-[var(--radius-control)] px-3 py-2 text-xs text-[color:var(--color-ok)] hover:bg-[color:var(--color-surface)] transition-colors duration-150 cursor-pointer"
           >
             <Sparkles className="h-3.5 w-3.5" />
             <span>Interactive Demo</span>
           </button>
 
-          {isAuthenticated && !isDashboard && (
-            <Link
-              to="/dashboard"
-              className="flex items-center gap-1.5 text-xs font-medium text-[color:var(--color-instrument)] hover:text-[color:var(--color-ink)] transition-colors no-underline"
-            >
-              <LayoutDashboard className="h-3.5 w-3.5" />
-              <span>Dashboard</span>
-            </Link>
-          )}
+          <a
+            href="https://documenter.getpostman.com/view/41403866/2sBYHYuy7j"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 rounded-[var(--radius-control)] px-3 py-2 text-xs text-[color:var(--color-muted)] hover:text-[color:var(--color-ink)] no-underline transition-colors duration-150"
+          >
+            <FileCode2 className="h-3.5 w-3.5" />
+            <span>API docs</span>
+          </a>
         </nav>
 
-        {/* Desktop Actions */}
-        <div className="hidden sm:flex items-center gap-2.5">
+        {/* Desktop Auth Actions */}
+        <div className="hidden lg:flex items-center gap-2">
           {!isAuthenticated ? (
             <>
               <button
                 type="button"
                 onClick={() => openAuthModal('signin')}
-                className="cc-button cc-button--quiet min-h-9 border-0 text-xs"
+                className="cc-button cc-button--quiet min-h-10 border-0 text-xs"
               >
                 Sign In
               </button>
@@ -135,7 +119,7 @@ const Navbar = () => {
               <button
                 type="button"
                 onClick={() => openAuthModal('signup')}
-                className="cc-button cc-button--quiet min-h-9 text-xs"
+                className="cc-button cc-button--quiet min-h-10 text-xs"
               >
                 Sign Up
               </button>
@@ -143,7 +127,7 @@ const Navbar = () => {
               <button
                 type="button"
                 onClick={openGithubModal}
-                className="cc-button cc-button--primary min-h-9 text-xs"
+                className="cc-button cc-button--primary min-h-10 text-xs"
               >
                 <FontAwesomeIcon icon={faGithub} className="text-sm" />
                 <span>Sign in with GitHub</span>
@@ -250,8 +234,8 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile Hamburger */}
-        <div className="sm:hidden flex items-center gap-2">
+        {/* Mobile Menu Trigger */}
+        <div className="lg:hidden flex items-center gap-2">
           {isAuthenticated && (
             <img
               src={user?.avatar}
@@ -262,8 +246,8 @@ const Navbar = () => {
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="cc-button cc-button--quiet min-h-9 w-9 px-0"
-            aria-label="Toggle navigation menu"
+            className="cc-button cc-button--quiet min-h-10 w-10 px-0"
+            aria-label={isMobileMenuOpen ? 'Close navigation' : 'Open navigation'}
             aria-expanded={isMobileMenuOpen}
           >
             {isMobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -271,41 +255,36 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Navigation Drawer */}
       {isMobileMenuOpen && (
-        <div className="border-t border-[var(--color-rule)] bg-[color:var(--color-source)] px-6 py-4 sm:hidden text-left space-y-3 animate-fadeIn">
-          <div className="flex flex-col gap-2 pb-3 border-b border-[var(--color-rule)]">
-            {!isDashboard ? (
-              <>
-                <a
-                  href="#how-it-works"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-xs font-medium text-[color:var(--color-ink-soft)] py-1.5 no-underline"
-                >
-                  How it works
-                </a>
-                <a
-                  href="#features"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-xs font-medium text-[color:var(--color-ink-soft)] py-1.5 no-underline"
-                >
-                  Features
-                </a>
-                <a
-                  href="#faq"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-xs font-medium text-[color:var(--color-ink-soft)] py-1.5 no-underline"
-                >
-                  FAQ
-                </a>
-              </>
-            ) : (
+        <nav
+          aria-label="Mobile navigation"
+          className="border-t border-[var(--color-rule)] bg-[color:var(--color-source)] lg:hidden animate-fadeIn"
+        >
+          <div className="cc-container grid gap-1 py-3">
+            <Link
+              to="/"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`rounded-[var(--radius-control)] px-3 py-3 text-sm no-underline ${
+                pathname === '/'
+                  ? 'bg-[color:var(--color-surface)] text-[color:var(--color-ink)]'
+                  : 'text-[color:var(--color-ink-soft)]'
+              }`}
+            >
+              Overview
+            </Link>
+
+            {isAuthenticated && (
               <Link
-                to="/"
+                to="/dashboard"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="text-xs font-medium text-[color:var(--color-ink-soft)] py-1.5 no-underline"
+                className={`rounded-[var(--radius-control)] px-3 py-3 text-sm no-underline ${
+                  isDashboard
+                    ? 'bg-[color:var(--color-surface)] text-[color:var(--color-ink)]'
+                    : 'text-[color:var(--color-ink-soft)]'
+                }`}
               >
-                Overview
+                Dashboard
               </Link>
             )}
 
@@ -315,79 +294,84 @@ const Navbar = () => {
                 setIsMobileMenuOpen(false);
                 openDemoModal();
               }}
-              className="flex items-center gap-2 text-xs font-medium text-[color:var(--color-ok)] py-1.5 text-left"
+              className="flex items-center gap-2 rounded-[var(--radius-control)] px-3 py-3 text-left text-sm text-[color:var(--color-ok)]"
             >
               <Sparkles className="h-4 w-4" />
               <span>Interactive Demo</span>
             </button>
-          </div>
 
-          {!isAuthenticated ? (
-            <div className="flex flex-col gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  openAuthModal('signin');
-                }}
-                className="cc-button cc-button--quiet w-full"
-              >
-                Sign In
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  openAuthModal('signup');
-                }}
-                className="cc-button cc-button--quiet w-full"
-              >
-                Create Free Account
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  openGithubModal();
-                }}
-                className="cc-button cc-button--primary w-full"
-              >
-                <FontAwesomeIcon icon={faGithub} className="text-sm" />
-                <span>Sign in with GitHub</span>
-              </button>
-            </div>
-          ) : (
-            <div className="pt-2 space-y-2">
-              <div className="mb-2">
-                <p className="cc-label">Logged in as</p>
-                <p className="text-xs font-medium text-[color:var(--color-ink)]">{user?.name}</p>
-                <p className="text-[11px] text-[color:var(--color-muted)]">{user?.email}</p>
+            <a
+              href="https://documenter.getpostman.com/view/41403866/2sBYHYuy7j"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 rounded-[var(--radius-control)] px-3 py-3 text-sm text-[color:var(--color-ink-soft)] no-underline"
+            >
+              <FileCode2 className="h-4 w-4" />
+              <span>API docs</span>
+            </a>
+
+            {!isAuthenticated ? (
+              <div className="mt-2 grid gap-2 border-t border-[var(--color-rule)] pt-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    openAuthModal('signin');
+                  }}
+                  className="cc-button cc-button--quiet w-full"
+                >
+                  Sign In
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    openAuthModal('signup');
+                  }}
+                  className="cc-button cc-button--quiet w-full"
+                >
+                  Sign Up
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    openGithubModal();
+                  }}
+                  className="cc-button cc-button--primary w-full"
+                >
+                  <FontAwesomeIcon icon={faGithub} className="text-sm" />
+                  <span>Sign in with GitHub</span>
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  navigate('/dashboard');
-                }}
-                className="cc-button cc-button--primary w-full"
-              >
-                <LayoutDashboard className="h-4 w-4" />
-                <span>Open Dashboard</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  logout();
-                }}
-                className="cc-button cc-button--quiet w-full text-[color:var(--color-warning)]"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Sign Out</span>
-              </button>
-            </div>
-          )}
-        </div>
+            ) : (
+              <div className="mt-2 grid gap-2 border-t border-[var(--color-rule)] pt-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    navigate('/dashboard');
+                  }}
+                  className="cc-button cc-button--primary w-full"
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  <span>Open Dashboard</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    logout();
+                  }}
+                  className="cc-button cc-button--quiet w-full text-[color:var(--color-warning)]"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </nav>
       )}
     </header>
   );

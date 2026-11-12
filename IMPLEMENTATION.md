@@ -113,19 +113,16 @@ Before touching any source file:
 ---
 
 ### Phase 3 — Landing Page (`/`) Merge & Animation Alignment
-- [x] `Navbar.tsx` (sticky Console Graphite header):
-  - Links: `How it works` (`#how-it-works`), `Features` (`#features`), `FAQ` (`#faq`), `Interactive Demo` button, **`Dashboard`** link (`/dashboard` when signed in).
-  - Auth controls: `Sign In`, `Sign Up`, `Sign in with GitHub`, or authenticated user pill + dropdown (with `Open Dashboard`, `View Demo Tour`, `Sign Out`) and responsive mobile drawer.
-- [x] `HeroSection.tsx`:
-  - Full-bleed hero wrapper matching `campus-code`'s animation style: `RainbowPrismWave` WebGL canvas (`opacity-55`) + `StaticDotGrid` + subtle gradient/ground veil.
-  - Preserves `campuscode copy`'s content & elements: status badge (`100% Local Graph AI Evaluation`), headline (`Resumes lie. Code doesn't.`), CTA buttons (`Sign in with GitHub` / `Open Dashboard` when signed in + `View a Demo`), and the interactive **Sample Scorecard Preview** card (toggleable between `Spring Boot Store` and `MultiThreaded Queue`, showing `ScoreBar` + `AIFindingCard` code excerpt) in Console Graphite styling.
-- [x] `CampusCodePipeline.tsx` + `RepositoryView.tsx`, `KnowledgeGraph.tsx`, `EvidenceView.tsx`:
-  - Restyle into `.cc-section--band`, `.cc-panel`, `.cc-source`, using `--color-instrument` / `--color-ok` / `--color-recruiter` accents.
-- [x] `Features.tsx`:
-  - Keep the interactive SVG node-hub diagram (`CampusCode Orchestrator` center node, 6 detection/trust cards, animated `drawPath` & `animateMotion` glowing paths, hover popups) adapted to Console Graphite (`--color-surface`, `--color-source`, `--color-rule`, `--color-instrument`, `--color-ok`) + responsive mobile fallback grid (`lg:hidden`).
-- [x] `FAQ.tsx` & `Footer.tsx`:
-  - Restyle FAQ accordion and Footer in Console Graphite (`--color-source`, `--color-surface`, `--color-rule`, `.cc-link`, `.cc-button`).
-- **Checkpoint:** `/` builds cleanly with WebGL wave + interactive Demo + Auth modals.
+- [x] `Navbar.tsx` (matching `campus-code` header):
+  - Links: `Overview` (`/`), `Dashboard` (`/dashboard` when signed in), `Interactive Demo` (opens `DemoModal`), `API docs`.
+  - Auth controls: `Sign In`, `Sign Up`, `Sign in with GitHub`, or authenticated user pill + dropdown (`Open Dashboard`, `View Demo Tour`, `Sign Out`) and responsive mobile drawer.
+- [x] `Landing.tsx` (matching `campus-code/src/app/page.tsx` layout & `RainbowPrismWave` hero):
+  - Full-bleed `RainbowPrismWave` WebGL hero (`Evidence-Based Engineering Profiles`) with `Sign in with GitHub` / `Open dashboard`, `Interactive demo`, and `View sample dossier` CTAs.
+  - Dossier preview section (`The dossier, before the interview` — `OmniSearch` 6-dimension list + `OMNISEARCH_SETUP.md` code proof).
+  - RAG band (`Ask the repository. Get cited answers.`), `Six engineering dimensions`, and dual recruiter/placement-cell CTA band (dashboard actions open `/dashboard` when signed in or prompt `AuthModal`).
+- [x] `FooterInteractive.tsx` (matching `campus-code/src/components/ui/footer-interactive.tsx`):
+  - Navigate links, `Cohort updates` email preview, and floating `Ask CampusCode` assistant widget.
+- **Checkpoint:** `/` builds cleanly with `campus-code` landing page, WebGL wave, interactive Demo, and Auth modals.
 
 ---
 
