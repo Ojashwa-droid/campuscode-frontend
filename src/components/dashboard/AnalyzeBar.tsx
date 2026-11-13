@@ -6,14 +6,8 @@ interface AnalyzeBarProps {
   isAnalyzing: boolean;
 }
 
-const SAMPLE_URLS = [
-  { label: 'spring-boot-ecommerce', url: 'https://github.com/campuscode-demo/spring-boot-ecommerce' },
-  { label: 'multithreaded-queue', url: 'https://github.com/campuscode-demo/multithreaded-task-queue' },
-  { label: 'realtime-collab-engine', url: 'https://github.com/campuscode-demo/realtime-collab-engine' },
-];
-
 export function AnalyzeBar({ onAnalyze, isAnalyzing }: AnalyzeBarProps) {
-  const [repoUrl, setRepoUrl] = useState('https://github.com/campuscode-demo/realtime-collab-engine');
+  const [repoUrl, setRepoUrl] = useState('');
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -47,31 +41,20 @@ export function AnalyzeBar({ onAnalyze, isAnalyzing }: AnalyzeBarProps) {
           {isAnalyzing ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              <span>Analyzing...</span>
+              <span>Submitting...</span>
             </>
           ) : (
             <>
               <Sparkles className="h-4 w-4" />
-              <span>Analyze Your Repository</span>
+              <span>Start repository review</span>
             </>
           )}
         </button>
       </form>
 
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <span className="cc-label text-[11px]">Quick presets:</span>
-        {SAMPLE_URLS.map((preset) => (
-          <button
-            key={preset.label}
-            type="button"
-            disabled={isAnalyzing}
-            onClick={() => setRepoUrl(preset.url)}
-            className="rounded-[var(--radius-control)] border border-[var(--color-rule)] bg-[color:var(--color-source)] px-2.5 py-1 text-[11px] text-[color:var(--color-muted)] hover:border-[var(--color-instrument)] hover:text-[color:var(--color-ink)] transition cursor-pointer disabled:opacity-50"
-          >
-            {preset.label}
-          </button>
-        ))}
-      </div>
+      <p className="cc-label mt-3 text-[11px]">
+        Public GitHub repositories · follow ingestion and scorecard progress from your workspace.
+      </p>
     </section>
   );
 }

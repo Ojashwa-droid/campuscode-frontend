@@ -11,6 +11,40 @@ interface StoredUserRecord extends User {
   passwordHash?: string;
 }
 
+const bytesToHex = (bytes: Uint8Array) =>
+  Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+
+const derivePasswordHash = async (password: string, salt: Uint8Array, iterations: number) => {
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
+  const digest = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', salt: salt.slice().buffer as ArrayBuffer, iterations, hash: 'SHA-256' },
+    key,
+    256
+  );
+  return bytesToHex(new Uint8Array(digest));
+};
+
+const hashPassword = async (password: string) => {
+  const iterations = 210_000;
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const hash = await derivePasswordHash(password, salt, iterations);
+  return `pbkdf2:${iterations}:${bytesToHex(salt)}:${hash}`;
+};
+
+const passwordMatches = async (stored: string | undefined, password: string) => {
+  if (!stored) return true;
+  if (stored.startsWith('pbkdf2:')) {
+    const [, iterationText, saltText, expectedHash] = stored.split(':');
+    const salt = new Uint8Array(saltText.match(/.{2}/g)?.map((part) => parseInt(part, 16)) ?? []);
+    return await derivePasswordHash(password, salt, Number(iterationText)) === expectedHash;
+  }
+  if (stored.startsWith('sha256:')) {
+    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(password));
+    return stored === `sha256:${bytesToHex(new Uint8Array(digest))}`;
+  }
+  return stored === password;
+};
+
 const DEFAULT_USERS: StoredUserRecord[] = [
   {
     id: 'user_demo_1',
@@ -27,7 +61,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { showToast } = useToast();
   const navigate = useNavigate();
 
-  // Always start signed out when the app launches / reloads
   const [user, setUser] = useState<User | null>(null);
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -87,8 +120,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: 'No account found with this email. Please sign up.' };
       }
 
-      if (foundUser.passwordHash && foundUser.passwordHash !== password) {
+      if (!(await passwordMatches(foundUser.passwordHash, password))) {
         return { success: false, error: 'Incorrect password. Please try again.' };
+      }
+
+      if (foundUser.passwordHash && !foundUser.passwordHash.startsWith('pbkdf2:')) {
+        foundUser.passwordHash = await hashPassword(password);
+        localStorage.setItem(STORAGE_KEY_USERS_DB, JSON.stringify(db));
       }
 
       const sessionUser: User = {
@@ -134,7 +172,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: 'user_' + Math.random().toString(36).substring(2, 10),
         name: name.trim(),
         email: trimmedEmail,
-        passwordHash: password,
+        passwordHash: await hashPassword(password),
         avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name.trim())}&backgroundColor=18181b`,
         provider: 'email',
         createdAt: new Date().toISOString(),
@@ -184,6 +222,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { success: true };
   };
 
+  const updateProfile = async (name: string, email: string) => {
+    if (!user) return { success: false, error: 'Sign in to edit your profile.' };
+    const cleanName = name.trim();
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanName || !/\S+@\S+\.\S+/.test(cleanEmail)) {
+      return { success: false, error: 'Enter a name and a valid email address.' };
+    }
+    try {
+      const updatedUser = { ...user, name: cleanName, email: cleanEmail };
+      if (user.provider === 'email') {
+        const dbRaw = localStorage.getItem(STORAGE_KEY_USERS_DB);
+        const db: StoredUserRecord[] = dbRaw ? JSON.parse(dbRaw) : [];
+        if (db.some((record) => record.id !== user.id && record.email.toLowerCase() === cleanEmail)) {
+          return { success: false, error: 'That email address is already in use.' };
+        }
+        localStorage.setItem(
+          STORAGE_KEY_USERS_DB,
+          JSON.stringify(db.map((record) => record.id === user.id ? { ...record, name: cleanName, email: cleanEmail } : record))
+        );
+      }
+      setUser(updatedUser);
+      return { success: true };
+    } catch {
+      return { success: false, error: 'Profile changes could not be saved.' };
+    }
+  };
+
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    if (!user || user.provider !== 'email') {
+      return { success: false, error: 'Password changes are only available for email accounts.' };
+    }
+    if (newPassword.length < 8) {
+      return { success: false, error: 'Use at least 8 characters for your new password.' };
+    }
+    try {
+      const dbRaw = localStorage.getItem(STORAGE_KEY_USERS_DB);
+      const db: StoredUserRecord[] = dbRaw ? JSON.parse(dbRaw) : [];
+      const record = db.find((item) => item.id === user.id);
+      if (!record || !(await passwordMatches(record.passwordHash, currentPassword))) {
+        return { success: false, error: 'Current password is incorrect.' };
+      }
+      record.passwordHash = await hashPassword(newPassword);
+      localStorage.setItem(STORAGE_KEY_USERS_DB, JSON.stringify(db));
+      return { success: true };
+    } catch {
+      return { success: false, error: 'Password could not be updated.' };
+    }
+  };
+
   const logout = useCallback(() => {
     navigate('/');
     setUser(null);
@@ -208,6 +295,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         closeDemoModal,
         login,
         signup,
+        updateProfile,
+        changePassword,
         loginWithGithub,
         logout,
       }}

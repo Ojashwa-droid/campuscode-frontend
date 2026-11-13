@@ -17,6 +17,8 @@ export interface AuthContextType {
   closeDemoModal: () => void;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signup: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  updateProfile: (name: string, email: string) => Promise<{ success: boolean; error?: string }>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
   loginWithGithub: (handle?: string) => Promise<{ success: boolean }>;
   logout: () => void;
 }

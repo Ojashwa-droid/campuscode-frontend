@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useRef } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import type { ReactNode } from 'react';
 import { ToastProvider } from './context/ToastContext';
 import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './context/useAuth';
@@ -10,14 +11,17 @@ import { DemoModal } from './components/demo/DemoModal';
 
 const Landing = lazy(() => import('./pages/Landing'));
 const Scorecard = lazy(() => import('./pages/Scorecard'));
+const IngestionPage = lazy(() => import('./pages/RepositoryReview').then((module) => ({ default: module.IngestionPage })));
+const GraphVisualizationPage = lazy(() => import('./pages/RepositoryReview').then((module) => ({ default: module.GraphVisualizationPage })));
+const ReportPage = lazy(() => import('./pages/RepositoryReview').then((module) => ({ default: module.ReportPage })));
 
-function ProtectedDashboard() {
+function ProtectedDashboard({ children }: { children: ReactNode }) {
   const { isAuthenticated, openAuthModal } = useAuth();
   const { showToast } = useToast();
   const promptedRef = useRef(false);
 
   useEffect(() => {
-    if (!isAuthenticated && window.location.pathname === '/dashboard' && !promptedRef.current) {
+    if (!isAuthenticated && window.location.pathname.startsWith('/dashboard') && !promptedRef.current) {
       promptedRef.current = true;
       showToast('Please sign in to access the CampusCode dashboard.', 'info');
       openAuthModal('signin');
@@ -28,7 +32,7 @@ function ProtectedDashboard() {
     return <Navigate to="/" replace />;
   }
 
-  return <Scorecard />;
+  return <>{children}</>;
 }
 
 function App() {
@@ -45,7 +49,10 @@ function App() {
           >
             <Routes>
               <Route path="/" element={<Landing />} />
-              <Route path="/dashboard" element={<ProtectedDashboard />} />
+              <Route path="/dashboard" element={<ProtectedDashboard><Scorecard /></ProtectedDashboard>} />
+              <Route path="/dashboard/ingestions/:ingestionId" element={<ProtectedDashboard><IngestionPage /></ProtectedDashboard>} />
+              <Route path="/dashboard/ingestions/:ingestionId/graph" element={<ProtectedDashboard><GraphVisualizationPage /></ProtectedDashboard>} />
+              <Route path="/dashboard/ingestions/:ingestionId/report" element={<ProtectedDashboard><ReportPage /></ProtectedDashboard>} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>

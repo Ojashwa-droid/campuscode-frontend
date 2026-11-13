@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import {
   ArrowLeft,
   Clock,
+  FileText,
   FolderGit2,
   LogOut,
   Sparkles,
@@ -12,7 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import type { User } from '../../types/auth';
 
-export type DashboardSection = 'repositories' | 'history' | 'profile';
+export type DashboardSection = 'profile' | 'engineering' | 'history' | 'report-preview';
 
 interface SidebarProps {
   activeSection: DashboardSection;
@@ -43,9 +44,10 @@ export function Sidebar({
     icon: typeof FolderGit2;
     badge?: number;
   }[] = [
-    { id: 'repositories', label: 'Your Repositories', icon: FolderGit2, badge: repoCount },
-    { id: 'history', label: 'History', icon: Clock, badge: historyCount },
     { id: 'profile', label: 'User Profile', icon: UserIcon },
+    { id: 'engineering', label: 'Engineering', icon: FolderGit2, badge: repoCount },
+    { id: 'history', label: 'Analyzed Repositories', icon: Clock, badge: historyCount },
+    { id: 'report-preview', label: 'Sample Report', icon: FileText },
   ];
 
   const handleNavClick = (section: DashboardSection) => {
