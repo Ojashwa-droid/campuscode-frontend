@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowUpRight, Check, CircleAlert, Clock3, Download, ExternalLink, FileJson2, LoaderCircle, Network, Printer, RefreshCw, ShieldCheck } from 'lucide-react';
-import { ApiError, getGraphVisualization, getIngestion, getReport, streamEvaluation, type EvaluationProgress, type EvaluationReport, type IngestionStatus } from '../lib/api';
+import { ApiError, getGraphVisualization, getIngestion, getReport, getReportGraphContext, streamEvaluation, type EvaluationProgress, type EvaluationReport, type IngestionStatus, type ReportGraphContext } from '../lib/api';
+import { ReportGraphExplorer } from '../components/ReportGraphExplorer';
 import { SAMPLE_REPORT } from '../lib/sampleReport';
 
 const stages = [
@@ -204,18 +205,32 @@ export function GraphVisualizationPage() {
 export function ReportPage({ demo = false }: { demo?: boolean } = {}) {
   const { ingestionId = '' } = useParams();
   const [report, setReport] = useState<EvaluationReport | null>(demo ? SAMPLE_REPORT : null);
+  const [reportGraph, setReportGraph] = useState<ReportGraphContext | null>(null);
+  const [graphLoading, setGraphLoading] = useState(!demo);
+  const [graphError, setGraphError] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(!demo);
+  const loadReportGraph = useCallback(() => {
+    if (demo || !ingestionId) return;
+    setGraphLoading(true);
+    setGraphError('');
+    void getReportGraphContext(ingestionId).then(setReportGraph).catch((reason: unknown) => {
+      setGraphError(reason instanceof Error ? reason.message : 'The report graph could not be loaded.');
+    }).finally(() => setGraphLoading(false));
+  }, [demo, ingestionId]);
   useEffect(() => {
     if (demo) return;
     let cancelled = false;
+    setReportGraph(null);
+    setGraphLoading(true);
     void getReport(ingestionId).then((value) => { if (!cancelled) setReport(value); }).catch((reason: unknown) => {
       if (cancelled) return;
       const notReady = reason instanceof ApiError && (reason.status === 400 || reason.status === 409);
       setError(notReady ? 'The scorecard will appear here when evaluation is complete.' : reason instanceof Error ? reason.message : 'The saved report could not be loaded.');
     }).finally(() => { if (!cancelled) setLoading(false); });
+    loadReportGraph();
     return () => { cancelled = true; };
-  }, [demo, ingestionId]);
+  }, [demo, ingestionId, loadReportGraph]);
 
   const downloadJson = () => {
     if (!report) return;
@@ -240,15 +255,18 @@ export function ReportPage({ demo = false }: { demo?: boolean } = {}) {
   const strongest = ranked[0];
   const weakest = ranked[ranked.length - 1];
   return <ReviewFrame fullPage={!demo} wide>
+    {!demo && <div className="print-only report-print-meta"><span>CampusCode · Evidence-based engineering profile</span><span>Completed {dateText(report.completedAt)}</span></div>}
     {demo && <div className="mb-5 flex flex-wrap items-center gap-2 rounded-[var(--radius-control)] border border-[var(--color-recruiter)]/30 bg-[color:var(--color-recruiter-soft)]/50 px-4 py-3 text-xs text-[color:var(--color-recruiter)]"><FileJson2 className="h-4 w-4 shrink-0" /><strong className="font-medium">Sample preview</strong><span className="text-[color:var(--color-ink-soft)]">Illustrative JSON only · not generated from a real repository</span></div>}
-    <div className="flex flex-wrap items-start justify-between gap-4"><div className="min-w-0 flex-1"><ReviewHeader eyebrow={demo ? 'DEMO REPORT / SAMPLE JSON OUTPUT' : 'Repository review / completed report'} title={demo ? 'Sample engineering scorecard' : 'Engineering scorecard'} repositoryUrl={report.repositoryUrl} /></div><div className="flex flex-wrap gap-2 print:hidden">{!demo && <Link to={`/dashboard/ingestions/${report.ingestionId}/graph`} className="cc-button cc-button--quiet min-h-10 text-xs"><Network className="h-4 w-4" /> Knowledge graph</Link>}<button type="button" onClick={downloadJson} className="cc-button cc-button--quiet min-h-10 text-xs"><Download className="h-4 w-4" /><span className="hidden sm:inline">Download JSON</span><FileJson2 className="h-4 w-4 sm:hidden" /></button><button type="button" onClick={() => window.print()} className="cc-button cc-button--quiet min-h-10 px-3" aria-label="Print report"><Printer className="h-4 w-4" /></button></div></div>
+    <div className="report-print-title flex flex-wrap items-start justify-between gap-4"><div className="min-w-0 flex-1"><ReviewHeader eyebrow={demo ? 'DEMO REPORT / SAMPLE JSON OUTPUT' : 'Repository review / completed report'} title={demo ? 'Sample engineering scorecard' : 'Engineering scorecard'} repositoryUrl={report.repositoryUrl} /></div><div className="flex flex-wrap gap-2 print:hidden">{!demo && <Link to={`/dashboard/ingestions/${report.ingestionId}/graph`} className="cc-button cc-button--quiet min-h-10 text-xs"><Network className="h-4 w-4" /> Knowledge graph</Link>}<button type="button" onClick={downloadJson} className="cc-button cc-button--quiet min-h-10 text-xs"><Download className="h-4 w-4" /><span className="hidden sm:inline">Download JSON</span><FileJson2 className="h-4 w-4 sm:hidden" /></button><button type="button" onClick={() => window.print()} className="cc-button cc-button--quiet min-h-10 px-3" aria-label="Print report"><Printer className="h-4 w-4" /></button></div></div>
 
-    <p className="cc-copy mb-5 max-w-3xl">{report.summary}</p>
+    <p className="cc-copy report-print-summary mb-5 max-w-3xl">{report.summary}</p>
 
-    <div className="mb-5 grid gap-4 xl:grid-cols-[12rem_minmax(0,1fr)_12rem]">
+    {!demo && <section className="print-only report-print-overview" aria-label="Score overview"><h2>Score overview</h2><div className="report-print-overall"><strong>{report.overallScore}<small> / 100</small></strong><span>Overall score</span></div><table><thead><tr><th>Dimension</th><th>Score</th><th>Evidence summary</th></tr></thead><tbody>{dimensions.map((dimension) => <tr key={dimension.dimension}><th scope="row">{friendlyDimension(dimension.dimension)}</th><td>{dimension.score} / 5</td><td>{dimension.citations.length ? `${dimension.citations.length} repository reference${dimension.citations.length === 1 ? '' : 's'}` : 'Insufficient verifiable evidence'}</td></tr>)}</tbody></table></section>}
+
+    <div className="report-screen-analytics mb-5 grid gap-4 xl:grid-cols-[12rem_minmax(0,1fr)_12rem]">
       <div className="grid grid-cols-2 gap-4 xl:grid-cols-1 xl:content-start">
         <KpiCard tone="sage" label="Dimensions scored" value={String(dimensions.length)} sub="Engineering signals" />
-        <KpiCard tone="sage" label="Source citations" value={String(totalCitations)} sub="Across all dimensions" />
+        <KpiCard tone="sage" label="Repository references" value={String(totalCitations)} sub={report.citationMode === 'GRAPH_METADATA' ? 'Cognee graph symbols' : 'Source citations'} />
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -273,18 +291,47 @@ export function ReportPage({ demo = false }: { demo?: boolean } = {}) {
       const key = dimension.dimension.replace(/[^a-z0-9]+/gi, '-').toLowerCase();
       const percent = dimensionPercent(dimension.score);
       const noEvidence = dimension.score === 0 && dimension.citations.length === 0;
-      return <DashPanel key={dimension.dimension} id={`dimension-${key}`} tone={dimensionTones[index % dimensionTones.length]} title={friendlyDimension(dimension.dimension)} className="scroll-mt-6">
-        <div className="flex flex-col items-center gap-3 text-center"><ScoreDonut value={percent} size={110} label="" />{noEvidence && <p className="m-0 inline-flex items-center gap-2 text-xs text-[color:var(--color-recruiter)]"><CircleAlert className="h-4 w-4" />Insufficient verifiable evidence</p>}<p className="cc-copy text-left">{dimension.rationale}</p>{dimension.citations.length > 0 && <a href={`#citations-${key}`} className="cc-link text-xs">{dimension.citations.length} {dimension.citations.length === 1 ? 'citation' : 'citations'} ↓</a>}</div>
+      return <DashPanel key={dimension.dimension} id={`dimension-${key}`} tone={dimensionTones[index % dimensionTones.length]} title={friendlyDimension(dimension.dimension)} className="report-print-dimension scroll-mt-6">
+        <div className="flex flex-col items-center gap-3 text-center"><ScoreDonut value={percent} size={110} label="" />{noEvidence && <p className="m-0 inline-flex items-center gap-2 text-xs text-[color:var(--color-recruiter)]"><CircleAlert className="h-4 w-4" />Insufficient verifiable evidence</p>}<p className="cc-copy text-left">{dimension.rationale}</p>
+          {dimension.strengths?.length ? <div className="w-full text-left"><h4 className="cc-label font-semibold text-[color:var(--color-ok)]">Strengths</h4><ul className="cc-copy mt-2 list-disc space-y-1 pl-5">{dimension.strengths.map((point, i) => <li key={`${point.evidenceIds.join('-')}-${i}`}>{point.text}</li>)}</ul></div> : null}
+          {dimension.areasForImprovement?.length ? <div className="w-full text-left"><h4 className="cc-label font-semibold text-[color:var(--color-recruiter)]">Areas for improvement</h4><ul className="cc-copy mt-2 list-disc space-y-1 pl-5">{dimension.areasForImprovement.map((point, i) => <li key={`${point.evidenceIds.join('-')}-${i}`}>{point.text}</li>)}</ul></div> : null}
+          {dimension.citations.length > 0 && <a href={`#citations-${key}`} className="cc-link text-xs">{dimension.citations.length} {dimension.citations.length === 1 ? 'citation' : 'citations'} ↓</a>}</div>
       </DashPanel>;
     })}</div></section>
 
-    <section aria-labelledby="citations-heading"><div className="mb-4"><p className="cc-label uppercase tracking-[0.14em] text-[color:var(--color-recruiter)]">Sources</p><h2 id="citations-heading" className="cc-title mt-1 text-xl">Source citations</h2><p className="cc-copy mt-2 text-xs">Verify each line range against the source file.</p></div><div className="grid gap-4 lg:grid-cols-2">{dimensions.map((dimension, index) => {
+    {!demo && <section aria-labelledby="repository-graph-heading" className="report-print-graph my-8"><div className="mb-4"><p className="cc-label uppercase tracking-[0.14em] text-[color:var(--color-instrument)]">Repository structure</p><h2 id="repository-graph-heading" className="cc-title mt-1 text-xl">Knowledge graph</h2><p className="cc-copy mt-2">Explore the nodes and relationships included in this scorecard.</p></div>{graphLoading ? <div className="cc-panel print:hidden flex min-h-72 items-center justify-center gap-3 text-sm text-[color:var(--color-ink-soft)]"><LoaderCircle className="h-5 w-5 animate-spin text-[color:var(--color-instrument)]" /> Loading report graph…</div> : graphError ? <div role="alert" className="cc-panel border border-[var(--color-warning)]/30 p-5"><CircleAlert className="mb-2 h-5 w-5 text-[color:var(--color-warning)]" /><p className="cc-copy">{graphError}</p><button type="button" onClick={loadReportGraph} className="cc-link print:hidden mt-3 text-sm">Try again</button></div> : reportGraph ? <ReportGraphExplorer graph={reportGraph} /> : null}{!reportGraph && <p className="print-only">{graphLoading ? 'The graph overview was still loading when this report was printed.' : 'A report-scoped graph overview is unavailable for this report.'}</p>}</section>}
+
+    <section aria-labelledby="citations-heading"><div className="mb-4"><p className="cc-label uppercase tracking-[0.14em] text-[color:var(--color-recruiter)]">Sources</p><h2 id="citations-heading" className="cc-title mt-1 text-xl">Repository references</h2><p className="cc-copy mt-2 text-xs">Source excerpts are line-verified. Graph references identify symbols from Cognee metadata; source contents and optional graph lines were not verified.</p></div>{report.citationMode === 'GRAPH_METADATA' && <p className="mb-4 rounded-[var(--radius-control)] border border-[var(--color-instrument)]/30 bg-[color:var(--color-source)] p-3 text-xs text-[color:var(--color-ink-soft)]">Graph-only report: linked symbol names and paths come from Cognee’s graph and are not verified source excerpts. Structural metadata cannot establish security, reliability, performance, correctness, or a person’s overall ability.</p>}<div className="grid gap-4 lg:grid-cols-2">{dimensions.map((dimension, index) => {
       const key = dimension.dimension.replace(/[^a-z0-9]+/gi, '-').toLowerCase();
-      return <DashPanel key={dimension.dimension} id={`citations-${key}`} tone={dimensionTones[index % dimensionTones.length]} title={`${friendlyDimension(dimension.dimension)} · ${dimension.citations.length}`} className="scroll-mt-6">
-        {dimension.citations.length ? <div className="space-y-2">{dimension.citations.map((citation, citationIndex) => <details key={`${citation.evidenceId}-${citationIndex}`} className="group overflow-hidden rounded-[var(--radius-control)] border border-[var(--color-rule)] bg-[color:var(--color-source)]"><summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-3 gap-y-1 px-3 py-3 text-xs"><span className="min-w-0 flex-1 truncate font-medium text-[color:var(--color-instrument)]">{citation.filePath}</span><span className="cc-measured shrink-0 text-[color:var(--color-muted)]">L{citation.startLine}–{citation.endLine}</span></summary><div className="border-t border-[var(--color-rule)] px-3 py-3"><pre className="m-0 overflow-x-auto whitespace-pre-wrap break-words text-xs leading-6 text-[color:var(--color-ink-soft)]"><code>{citation.excerpt}</code></pre></div></details>)}</div> : <p className="cc-label">No verifiable repository citation was returned for this dimension.</p>}
+      return <DashPanel key={dimension.dimension} id={`citations-${key}`} tone={dimensionTones[index % dimensionTones.length]} title={`${friendlyDimension(dimension.dimension)} · ${dimension.citations.length}`} className="report-print-citation-group scroll-mt-6">
+        {dimension.citations.length ? <div className="space-y-2">{dimension.citations.map((citation, citationIndex) => {
+          const graphReference = citation.referenceType === 'COGNEE_GRAPH_METADATA';
+          const link = graphReference ? githubCitationUrl(report.repositoryUrl, report.defaultBranch, citation.filePath, citation.startLine) : null;
+          const label = graphReference ? citation.symbolName || citation.filePath : citation.filePath;
+          return <details key={`${citation.evidenceId}-${citationIndex}`} className="group overflow-hidden rounded-[var(--radius-control)] border border-[var(--color-rule)] bg-[color:var(--color-source)]"><summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-3 gap-y-1 px-3 py-3 text-xs"><span className="min-w-0 flex-1 truncate font-medium text-[color:var(--color-instrument)]" title={citation.filePath}>{link ? <a href={link} target="_blank" rel="noreferrer" onClick={(event) => event.stopPropagation()} className="hover:underline">{label}<ExternalLink className="ml-1 inline h-3 w-3" /></a> : label}</span><span className="cc-measured shrink-0 text-[color:var(--color-muted)]">{graphReference ? 'Cognee graph reference' : citation.startLine && citation.endLine ? `L${citation.startLine}–${citation.endLine}` : 'Source excerpt'}</span></summary><div className="border-t border-[var(--color-rule)] px-3 py-3">{graphReference ? <><p className="cc-label">{citation.symbolType || 'Code symbol'} · {citation.filePath}</p><p className="cc-copy mt-2 text-xs">Cognee graph metadata reference. This identifies a symbol and its graph path; it is not a verified source excerpt.{citation.startLine ? ` Optional graph line metadata: ${citation.startLine} (not source-verified).` : ''}{!report.defaultBranch ? ' GitHub default branch metadata was unavailable, so no file link is shown.' : ''}</p></> : <pre className="m-0 overflow-x-auto whitespace-pre-wrap break-words text-xs leading-6 text-[color:var(--color-ink-soft)]"><code>{citation.excerpt ?? ''}</code></pre>}</div></details>;
+        })}</div> : <p className="cc-label">No repository reference was returned for this dimension.</p>}
       </DashPanel>;
     })}</div></section>
   </ReviewFrame>;
+}
+
+function githubCitationUrl(repositoryUrl: string, defaultBranch: string | null | undefined, filePath: string, line?: number | null) {
+  if (!defaultBranch || !filePath) return null;
+  try {
+    const repository = new URL(repositoryUrl);
+    if (repository.hostname.toLowerCase() !== 'github.com') return null;
+    const segments = repository.pathname.split('/').filter(Boolean);
+    if (segments.length < 2) return null;
+    const owner = segments[0];
+    const repo = segments[1].replace(/\.git$/i, '');
+    const pathParts = filePath.replaceAll('\\', '/').split('/').filter(Boolean);
+    if (pathParts.some((part) => part === '.' || part === '..')) return null;
+    const safePath = pathParts.map(encodeURIComponent).join('/');
+    const branch = defaultBranch.split('/').map(encodeURIComponent).join('/');
+    return `https://github.com/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/blob/${branch}/${safePath}${line && line > 0 ? `#L${line}` : ''}`;
+  } catch {
+    return null;
+  }
 }
 
 type Tone = 'amber' | 'coral' | 'blue' | 'sage';

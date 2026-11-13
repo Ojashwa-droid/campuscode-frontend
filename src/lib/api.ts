@@ -34,16 +34,78 @@ export interface EvaluationStatus {
 export interface Citation {
   evidenceId: string;
   filePath: string;
-  startLine: number;
-  endLine: number;
-  excerpt: string;
+  startLine?: number | null;
+  endLine?: number | null;
+  excerpt?: string | null;
+  symbolName?: string | null;
+  symbolType?: string | null;
+  referenceType?: 'SOURCE_EXCERPT' | 'COGNEE_GRAPH_METADATA' | string;
 }
 
 export interface DimensionScore {
   dimension: string;
   score: number;
   rationale: string;
+  strengths?: EvidencePoint[];
+  areasForImprovement?: EvidencePoint[];
   citations: Citation[];
+}
+
+export interface EvidencePoint {
+  text: string;
+  evidenceIds: string[];
+}
+
+export interface RepositoryEvidenceItem {
+  evidenceId: string;
+  dimension: string;
+  dimensions?: string[];
+  filePath: string;
+  startLine: number;
+  endLine: number;
+  excerpt: string;
+}
+
+export interface GraphFact {
+  id: string;
+  dimension: string;
+  dimensions?: string[];
+  label: string;
+  type: string;
+  description: string;
+  filePath: string;
+  relationships: string[];
+  symbolName?: string | null;
+  symbolType?: string | null;
+  language?: string | null;
+  repository?: string | null;
+  line?: number | null;
+  scoreable?: boolean;
+}
+
+export interface EvaluationEvidence {
+  evaluationId: string;
+  ingestionId: string;
+  repositoryUrl: string;
+  evidence: RepositoryEvidenceItem[];
+  graphContext: GraphFact[];
+  graphEdges?: GraphEdge[] | null;
+}
+
+export interface GraphEdge {
+  sourceId: string;
+  targetId: string;
+  label: string;
+  dimensions?: string[];
+}
+
+export interface ReportGraphContext {
+  evaluationId: string;
+  ingestionId: string;
+  repositoryUrl: string;
+  edgesFromCurrentGraph: boolean;
+  nodes: GraphFact[];
+  edges: GraphEdge[];
 }
 
 export interface EvaluationReport {
@@ -55,6 +117,8 @@ export interface EvaluationReport {
   dimensions: DimensionScore[];
   createdAt: string;
   completedAt: string;
+  citationMode?: 'GRAPH_METADATA' | string | null;
+  defaultBranch?: string | null;
 }
 
 export class ApiError extends Error {
@@ -135,6 +199,14 @@ export async function getGraphVisualization(repositoryUrl: string, signal?: Abor
 
 export function getReport(ingestionId: string) {
   return request<EvaluationReport>(`/api/repositories/ingestions/${encodeURIComponent(ingestionId)}/report`);
+}
+
+export function getEvaluationEvidence(ingestionId: string) {
+  return request<EvaluationEvidence>(`/api/repositories/ingestions/${encodeURIComponent(ingestionId)}/report/evidence`);
+}
+
+export function getReportGraphContext(ingestionId: string) {
+  return request<ReportGraphContext>(`/api/repositories/ingestions/${encodeURIComponent(ingestionId)}/report/graph-context`);
 }
 
 export type EvaluationStreamEvent =

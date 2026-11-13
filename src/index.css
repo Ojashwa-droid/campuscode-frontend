@@ -104,3 +104,285 @@
 .animate-breathe {
   animation: breathe 3.4s ease-in-out infinite;
 }
+
+.print-only {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: auto;
+    margin: 14mm 13mm 16mm;
+
+    @top-left {
+      content: "CampusCode · Evidence-based engineering profile";
+      color: #64748b;
+      font: 8pt Arial, Helvetica, sans-serif;
+    }
+
+    @bottom-right {
+      content: "Page " counter(page);
+      color: #64748b;
+      font: 8pt Arial, Helvetica, sans-serif;
+    }
+  }
+
+  html,
+  body {
+    overflow: visible !important;
+    background: #fff !important;
+    color: #17212b !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 10pt !important;
+    line-height: 1.45 !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  body * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    animation: none !important;
+  }
+
+  .cc-shell:has(.report-print-title) {
+    min-height: 0 !important;
+    background: #fff !important;
+    color: #17212b !important;
+  }
+
+  .cc-shell:has(.report-print-title) * {
+    background-color: transparent !important;
+    color: #17212b !important;
+  }
+
+  .cc-shell:has(.report-print-title) > div {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .cc-shell:has(.report-print-title) .print\:hidden,
+  .cc-shell:has(.report-print-title) header a[href="/dashboard"],
+  .cc-shell:has(.report-print-title) .report-screen-analytics,
+  .cc-shell:has(.report-print-title) .report-interactive-graph,
+  .cc-shell:has(.report-print-title) .report-graph-controls,
+  body:has(.report-print-title) [aria-modal="true"] {
+    display: none !important;
+  }
+
+  .cc-shell:has(.report-print-title) .print-only {
+    display: block !important;
+  }
+
+  .cc-shell:has(.report-print-title) header,
+  .cc-shell:has(.report-print-title) section,
+  .cc-shell:has(.report-print-title) article,
+  .cc-shell:has(.report-print-title) p,
+  .cc-shell:has(.report-print-title) li,
+  .cc-shell:has(.report-print-title) dd,
+  .cc-shell:has(.report-print-title) dt,
+  .cc-shell:has(.report-print-title) h1,
+  .cc-shell:has(.report-print-title) h2,
+  .cc-shell:has(.report-print-title) h3,
+  .cc-shell:has(.report-print-title) h4,
+  .cc-shell:has(.report-print-title) span,
+  .cc-shell:has(.report-print-title) small {
+    color: #17212b !important;
+  }
+
+  .cc-shell:has(.report-print-title) a {
+    color: #075985 !important;
+    text-decoration: underline !important;
+    overflow-wrap: anywhere;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-meta {
+    display: flex !important;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 8mm;
+    padding-bottom: 3mm;
+    border-bottom: 1px solid #cbd5e1;
+    color: #526170 !important;
+    font-size: 8pt;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-title header {
+    margin-bottom: 5mm !important;
+    padding-bottom: 4mm !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-title h1 {
+    font-size: 25pt !important;
+    line-height: 1.1 !important;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-summary {
+    max-width: none !important;
+    margin-bottom: 5mm !important;
+    font-size: 11pt !important;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-overview {
+    margin: 5mm 0 8mm;
+    break-inside: avoid;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-overview h2,
+  .cc-shell:has(.report-print-title) .report-print-graph-snapshot h3 {
+    margin: 0 0 3mm;
+    font-size: 15pt;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-overall {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin-bottom: 3mm;
+    padding: 3mm 4mm;
+    border-left: 4px solid #1683bf;
+    background: #eef6fa !important;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-overall,
+  .cc-shell:has(.report-print-title) .report-print-overview thead th,
+  .cc-shell:has(.report-print-title) .report-print-dimension > h3,
+  .cc-shell:has(.report-print-title) .report-print-citation-group > h3 {
+    background-color: #eaf0f5 !important;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-overall {
+    background-color: #eef6fa !important;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-overall strong {
+    font-size: 20pt;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-overall small,
+  .cc-shell:has(.report-print-title) .report-print-overall span {
+    font-size: 9pt;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-overview table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-overview th,
+  .cc-shell:has(.report-print-title) .report-print-overview td {
+    padding: 2mm 2.5mm;
+    border-bottom: 1px solid #d7dee5;
+    text-align: left;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-overview thead th {
+    background: #eaf0f5 !important;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-dimension,
+  .cc-shell:has(.report-print-title) .report-print-citation-group,
+  .cc-shell:has(.report-print-title) .report-print-graph-snapshot,
+  .cc-shell:has(.report-print-title) details {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .cc-shell:has(.report-print-title) section[aria-labelledby="dimensions-heading"] > div:last-child,
+  .cc-shell:has(.report-print-title) section[aria-labelledby="citations-heading"] > div:last-child {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .cc-shell:has(.report-print-title) #dimensions-heading,
+  .cc-shell:has(.report-print-title) #citations-heading,
+  .cc-shell:has(.report-print-title) #repository-graph-heading {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-dimension,
+  .cc-shell:has(.report-print-title) .report-print-citation-group {
+    margin-bottom: 4mm;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 2mm !important;
+    background: #fff !important;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-dimension > h3,
+  .cc-shell:has(.report-print-title) .report-print-citation-group > h3 {
+    padding: 2mm 3mm !important;
+    background: #eaf0f5 !important;
+    font-size: 9pt !important;
+    text-align: left !important;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-dimension > div,
+  .cc-shell:has(.report-print-title) .report-print-citation-group > div {
+    padding: 3mm !important;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-dimension [role="img"],
+  .cc-shell:has(.report-print-title) .report-print-dimension a[href^="#citations-"] {
+    display: none !important;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-dimension .cc-copy,
+  .cc-shell:has(.report-print-title) .report-print-citation-group,
+  .cc-shell:has(.report-print-title) .report-print-graph {
+    font-size: 9pt !important;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-graph {
+    margin-block: 6mm !important;
+    break-before: page;
+    page-break-before: always;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-graph-snapshot {
+    padding: 4mm;
+    border: 1px solid #cbd5e1;
+    border-radius: 2mm;
+    background: #fff !important;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-graph-snapshot > p,
+  .cc-shell:has(.report-print-title) .report-print-graph-snapshot > small {
+    display: block;
+    margin: 1mm 0 3mm;
+    font-size: 8pt;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-graph-snapshot svg {
+    display: block;
+    width: 100%;
+    max-height: 145mm;
+    background: #f8fafc !important;
+    border: 1px solid #d7dee5;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-graph-snapshot text {
+    fill: #17212b !important;
+  }
+
+  .cc-shell:has(.report-print-title) .report-print-citation-group details > div {
+    display: block !important;
+  }
+
+  .cc-shell:has(.report-print-title) pre,
+  .cc-shell:has(.report-print-title) code {
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere;
+    color: #263746 !important;
+    background: #f3f6f8 !important;
+  }
+
+  .cc-shell:has(.report-print-title) svg {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
