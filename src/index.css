@@ -176,6 +176,10 @@
     display: block !important;
   }
 
+  .cc-shell:has(.report-print-title) .report-scorecard-tab[hidden] {
+    display: block !important;
+  }
+
   .cc-shell:has(.report-print-title) header,
   .cc-shell:has(.report-print-title) section,
   .cc-shell:has(.report-print-title) article,

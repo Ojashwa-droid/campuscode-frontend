@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { type KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ArrowUpRight, Check, CircleAlert, Clock3, Download, ExternalLink, FileJson2, LoaderCircle, Network, Printer, RefreshCw, ShieldCheck } from 'lucide-react';
 import { ApiError, getGraphVisualization, getIngestion, getReport, getReportGraphContext, streamEvaluation, type EvaluationProgress, type EvaluationReport, type IngestionStatus, type ReportGraphContext } from '../lib/api';
 import { ReportGraphExplorer } from '../components/ReportGraphExplorer';
+import { RepositoryChatPanel } from '../components/RepositoryChatPanel';
 import { SAMPLE_REPORT } from '../lib/sampleReport';
 
 const stages = [
@@ -59,7 +60,10 @@ export function IngestionPage() {
   const [progress, setProgress] = useState<EvaluationProgress | null>(null);
   const [streamError, setStreamError] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
+  const [reportHandoff, setReportHandoff] = useState<'generating' | 'saved' | null>(null);
   const streamingRef = useRef(false);
+  const handoffRef = useRef(false);
+  const redirectTimer = useRef<number | null>(null);
   const streamController = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -84,16 +88,28 @@ export function IngestionPage() {
   }, [ingestionId]);
 
   const runEvaluation = useCallback(async () => {
-    if (streamingRef.current) return;
+    if (streamingRef.current || handoffRef.current) return;
     streamingRef.current = true;
     setStreamError('');
     setIsStreaming(true);
+    const requestStartedAt = Date.now();
     const controller = new AbortController();
     streamController.current = controller;
     try {
       await streamEvaluation(ingestionId, controller.signal, (event) => {
-        if (event.type === 'progress') setProgress(event.data);
-        if (event.type === 'completed') navigate(`/dashboard/ingestions/${ingestionId}/report`);
+        if (event.type === 'progress') {
+          setProgress(event.data);
+          setReportHandoff('generating');
+        }
+        if (event.type === 'completed') {
+          const completedAt = Date.parse(event.data.completedAt);
+          const isSavedReport = Number.isFinite(completedAt) && completedAt < requestStartedAt;
+          handoffRef.current = true;
+          setReportHandoff(isSavedReport ? 'saved' : null);
+          const openReport = () => navigate(`/dashboard/ingestions/${ingestionId}/report`, { state: { report: event.data } });
+          if (isSavedReport) redirectTimer.current = window.setTimeout(openReport, 1000);
+          else openReport();
+        }
         if (event.type === 'failed') setStreamError(event.data.error || 'The evaluation failed. You can try again.');
       });
     } catch (error) {
@@ -101,13 +117,22 @@ export function IngestionPage() {
     } finally {
       streamingRef.current = false;
       if (streamController.current === controller) streamController.current = null;
-      setIsStreaming(false);
+      if (!handoffRef.current) {
+        setIsStreaming(false);
+        setReportHandoff(null);
+      }
     }
   }, [ingestionId, navigate]);
 
   useEffect(() => {
-    if (ingestion?.status === 'COMPLETED') void runEvaluation();
-    return () => streamController.current?.abort();
+    const startTimer = ingestion?.status === 'COMPLETED'
+      ? window.setTimeout(() => void runEvaluation(), 0)
+      : null;
+    return () => {
+      if (startTimer !== null) window.clearTimeout(startTimer);
+      streamController.current?.abort();
+      if (redirectTimer.current !== null) window.clearTimeout(redirectTimer.current);
+    };
   }, [ingestion?.status, runEvaluation]);
 
   if (isLoading) return <ReviewFrame><div className="cc-panel flex items-center gap-3 p-7 text-sm text-[color:var(--color-ink-soft)]"><LoaderCircle className="h-5 w-5 animate-spin text-[color:var(--color-instrument)]" /> Loading repository status…</div></ReviewFrame>;
@@ -115,7 +140,7 @@ export function IngestionPage() {
 
   const stepIndex = stages.findIndex((stage) => stage.key === ingestion.status);
   const isIngesting = ['QUEUED', 'INGESTING', 'COGNIFYING'].includes(ingestion.status);
-  return <ReviewFrame>
+  return <ReviewFrame animate>
     <ReviewHeader eyebrow="Repository review / live status" title={shortRepo(ingestion.repositoryUrl)} repositoryUrl={ingestion.repositoryUrl} />
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.8fr)]">
       <section className="cc-panel p-5 sm:p-7">
@@ -130,11 +155,11 @@ export function IngestionPage() {
 
       <section className="cc-panel h-fit p-5 sm:p-7">
         <p className="cc-label uppercase tracking-[0.14em] text-[color:var(--color-recruiter)]">Engineering report</p>
-        <h2 className="cc-title mt-1 text-xl">{progress ? 'Evaluation in progress' : 'Evidence-backed scorecard'}</h2>
-        <p className="cc-copy mt-3">Six engineering dimensions, scored from retrieved repository evidence and linked to citations.</p>
+        <h2 className="cc-title mt-1 text-xl">{reportHandoff === 'saved' ? 'Saved scorecard found' : progress || reportHandoff === 'generating' ? 'Evaluation in progress' : ingestion.status === 'COMPLETED' && isStreaming ? 'Repository already ingested' : 'Evidence-backed scorecard'}</h2>
+        <p className="cc-copy mt-3" role={reportHandoff === 'saved' ? 'status' : undefined} aria-live={reportHandoff === 'saved' ? 'polite' : undefined}>{reportHandoff === 'saved' ? 'Already ingested and evaluated. Opening the saved report…' : ingestion.status === 'COMPLETED' && isStreaming && !progress ? 'Repository is already ingested. Checking whether its scorecard is saved…' : reportHandoff === 'generating' ? 'Repository is ready. CampusCode is generating its scorecard from the available evidence.' : 'Six engineering dimensions, scored from retrieved repository evidence and linked to citations.'}</p>
         {progress && <div className="mt-5 rounded-[var(--radius-control)] border border-[var(--color-rule)] bg-[color:var(--color-source)] p-4" role="status" aria-live="polite"><div className="flex justify-between gap-3 text-xs"><strong className="font-medium text-[color:var(--color-ink-soft)]">{progress.message}</strong><span className="cc-measured">{progress.progress}%</span></div><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[color:var(--color-rule)]"><span className="block h-full rounded-full bg-[color:var(--color-instrument)] transition-all" style={{ width: `${Math.min(100, Math.max(0, progress.progress))}%` }} /></div><p className="cc-label mt-2">{progress.stage.replaceAll('_', ' ')}</p></div>}
         {streamError && <div role="alert" className="mt-5 rounded-[var(--radius-control)] border border-[var(--color-warning)]/30 bg-[color:var(--color-warning-soft)] p-3 text-xs text-[color:var(--color-ink-soft)]">{streamError}</div>}
-        {ingestion.status === 'COMPLETED' && <button type="button" disabled={isStreaming} onClick={() => void runEvaluation()} className="cc-button cc-button--primary mt-5 w-full">{isStreaming ? <><LoaderCircle className="h-4 w-4 animate-spin" /> Evaluating repository…</> : <><RefreshCw className="h-4 w-4" /> {streamError ? 'Retry / reconnect' : 'Start evaluation'}</>}</button>}
+        {ingestion.status === 'COMPLETED' && reportHandoff !== 'saved' && <button type="button" disabled={isStreaming} onClick={() => void runEvaluation()} className="cc-button cc-button--primary mt-5 w-full">{isStreaming ? <><LoaderCircle className="h-4 w-4 animate-spin" /> Evaluating repository…</> : <><RefreshCw className="h-4 w-4" /> {streamError ? 'Retry / reconnect' : 'Start evaluation'}</>}</button>}
         {ingestion.status === 'COMPLETED' && <Link to={`/dashboard/ingestions/${ingestionId}/graph`} className="cc-button cc-button--quiet mt-3 w-full"><Network className="h-4 w-4" /> Explore knowledge graph</Link>}
         {isIngesting && <p className="cc-label mt-5 flex items-center gap-2"><LoaderCircle className="h-3.5 w-3.5 animate-spin" />This page updates automatically while the repository is processed.</p>}
         <p className="cc-label mt-5 border-t border-[var(--color-rule)] pt-4">A score is evidence for human review, not a hiring recommendation.</p>
@@ -204,12 +229,16 @@ export function GraphVisualizationPage() {
 
 export function ReportPage({ demo = false }: { demo?: boolean } = {}) {
   const { ingestionId = '' } = useParams();
-  const [report, setReport] = useState<EvaluationReport | null>(demo ? SAMPLE_REPORT : null);
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigationReport = demo ? null : reportFromNavigationState(location.state, ingestionId);
+  const activeReportTab = !demo && searchParams.get('tab') === 'chat' ? 'chat' : 'scorecard';
+  const [report, setReport] = useState<EvaluationReport | null>(demo ? SAMPLE_REPORT : navigationReport);
   const [reportGraph, setReportGraph] = useState<ReportGraphContext | null>(null);
   const [graphLoading, setGraphLoading] = useState(!demo);
   const [graphError, setGraphError] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(!demo);
+  const [loading, setLoading] = useState(!demo && !navigationReport);
   const loadReportGraph = useCallback(() => {
     if (demo || !ingestionId) return;
     setGraphLoading(true);
@@ -221,16 +250,26 @@ export function ReportPage({ demo = false }: { demo?: boolean } = {}) {
   useEffect(() => {
     if (demo) return;
     let cancelled = false;
-    setReportGraph(null);
-    setGraphLoading(true);
-    void getReport(ingestionId).then((value) => { if (!cancelled) setReport(value); }).catch((reason: unknown) => {
-      if (cancelled) return;
-      const notReady = reason instanceof ApiError && (reason.status === 400 || reason.status === 409);
-      setError(notReady ? 'The scorecard will appear here when evaluation is complete.' : reason instanceof Error ? reason.message : 'The saved report could not be loaded.');
-    }).finally(() => { if (!cancelled) setLoading(false); });
-    loadReportGraph();
-    return () => { cancelled = true; };
-  }, [demo, ingestionId, loadReportGraph]);
+    const loadTimer = window.setTimeout(() => {
+      if (navigationReport) {
+        setReport(navigationReport);
+        setError('');
+        setLoading(false);
+      } else {
+        setReport(null);
+        setLoading(true);
+        void getReport(ingestionId).then((value) => { if (!cancelled) setReport(value); }).catch((reason: unknown) => {
+          if (cancelled) return;
+          const notReady = reason instanceof ApiError && (reason.status === 400 || reason.status === 409);
+          setError(notReady ? 'The scorecard will appear here when evaluation is complete.' : reason instanceof Error ? reason.message : 'The saved report could not be loaded.');
+        }).finally(() => { if (!cancelled) setLoading(false); });
+      }
+      setReportGraph(null);
+      setGraphLoading(true);
+      loadReportGraph();
+    }, 0);
+    return () => { cancelled = true; window.clearTimeout(loadTimer); };
+  }, [demo, ingestionId, loadReportGraph, navigationReport]);
 
   const downloadJson = () => {
     if (!report) return;
@@ -241,6 +280,25 @@ export function ReportPage({ demo = false }: { demo?: boolean } = {}) {
     anchor.download = `${shortRepo(report.repositoryUrl).replaceAll('/', '-')}-scorecard.json`;
     anchor.click();
     URL.revokeObjectURL(url);
+  };
+
+  const selectReportTab = (tab: 'scorecard' | 'chat') => {
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      if (tab === 'chat') next.set('tab', 'chat');
+      else next.delete('tab');
+      return next;
+    }, { state: location.state, preventScrollReset: true });
+  };
+
+  const handleReportTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    event.preventDefault();
+    const nextTab = event.key === 'ArrowRight'
+      ? (activeReportTab === 'scorecard' ? 'chat' : 'scorecard')
+      : (activeReportTab === 'chat' ? 'scorecard' : 'chat');
+    selectReportTab(nextTab);
+    requestAnimationFrame(() => document.getElementById(`report-tab-${nextTab}`)?.focus());
   };
 
   if (loading) return <ReviewFrame><div className="cc-panel flex items-center gap-3 p-7 text-sm text-[color:var(--color-ink-soft)]"><LoaderCircle className="h-5 w-5 animate-spin text-[color:var(--color-instrument)]" /> Loading saved report…</div></ReviewFrame>;
@@ -254,13 +312,23 @@ export function ReportPage({ demo = false }: { demo?: boolean } = {}) {
   const ranked = [...dimensions].sort((a, b) => b.score - a.score);
   const strongest = ranked[0];
   const weakest = ranked[ranked.length - 1];
-  return <ReviewFrame fullPage={!demo} wide>
+  return <ReviewFrame fullPage={!demo} wide animate={Boolean(navigationReport)}>
     {!demo && <div className="print-only report-print-meta"><span>CampusCode · Evidence-based engineering profile</span><span>Completed {dateText(report.completedAt)}</span></div>}
     {demo && <div className="mb-5 flex flex-wrap items-center gap-2 rounded-[var(--radius-control)] border border-[var(--color-recruiter)]/30 bg-[color:var(--color-recruiter-soft)]/50 px-4 py-3 text-xs text-[color:var(--color-recruiter)]"><FileJson2 className="h-4 w-4 shrink-0" /><strong className="font-medium">Sample preview</strong><span className="text-[color:var(--color-ink-soft)]">Illustrative JSON only · not generated from a real repository</span></div>}
     <div className="report-print-title flex flex-wrap items-start justify-between gap-4"><div className="min-w-0 flex-1"><ReviewHeader eyebrow={demo ? 'DEMO REPORT / SAMPLE JSON OUTPUT' : 'Repository review / completed report'} title={demo ? 'Sample engineering scorecard' : 'Engineering scorecard'} repositoryUrl={report.repositoryUrl} /></div><div className="flex flex-wrap gap-2 print:hidden">{!demo && <Link to={`/dashboard/ingestions/${report.ingestionId}/graph`} className="cc-button cc-button--quiet min-h-10 text-xs"><Network className="h-4 w-4" /> Knowledge graph</Link>}<button type="button" onClick={downloadJson} className="cc-button cc-button--quiet min-h-10 text-xs"><Download className="h-4 w-4" /><span className="hidden sm:inline">Download JSON</span><FileJson2 className="h-4 w-4 sm:hidden" /></button><button type="button" onClick={() => window.print()} className="cc-button cc-button--quiet min-h-10 px-3" aria-label="Print report"><Printer className="h-4 w-4" /></button></div></div>
 
     <p className="cc-copy report-print-summary mb-5 max-w-3xl">{report.summary}</p>
 
+    {!demo && <div className="report-tab-nav mb-6 border-b border-[var(--color-rule)]" role="tablist" aria-label="Report views">
+      <button type="button" id="report-tab-scorecard" role="tab" aria-selected={activeReportTab === 'scorecard'} aria-controls="report-panel-scorecard" tabIndex={activeReportTab === 'scorecard' ? 0 : -1} onClick={() => selectReportTab('scorecard')} onKeyDown={handleReportTabKeyDown} className={`mr-6 border-b-2 px-1 pb-3 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-instrument)] ${activeReportTab === 'scorecard' ? 'border-[var(--color-instrument)] text-[color:var(--color-instrument)]' : 'border-transparent text-[color:var(--color-muted)] hover:text-[color:var(--color-ink)]'}`}>Scorecard</button>
+      <button type="button" id="report-tab-chat" role="tab" aria-selected={activeReportTab === 'chat'} aria-controls="report-panel-chat" tabIndex={activeReportTab === 'chat' ? 0 : -1} onClick={() => selectReportTab('chat')} onKeyDown={handleReportTabKeyDown} className={`border-b-2 px-1 pb-3 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-instrument)] ${activeReportTab === 'chat' ? 'border-[var(--color-instrument)] text-[color:var(--color-instrument)]' : 'border-transparent text-[color:var(--color-muted)] hover:text-[color:var(--color-ink)]'}`}>Repository chat</button>
+    </div>}
+
+    {!demo && <div id="report-panel-chat" role="tabpanel" aria-labelledby="report-tab-chat" hidden={activeReportTab !== 'chat'}>
+      <RepositoryChatPanel key={report.ingestionId} report={report} />
+    </div>}
+
+    <div id="report-panel-scorecard" role={demo ? undefined : 'tabpanel'} aria-labelledby={demo ? undefined : 'report-tab-scorecard'} hidden={!demo && activeReportTab !== 'scorecard'} className="report-scorecard-tab">
     {!demo && <section className="print-only report-print-overview" aria-label="Score overview"><h2>Score overview</h2><div className="report-print-overall"><strong>{report.overallScore}<small> / 100</small></strong><span>Overall score</span></div><table><thead><tr><th>Dimension</th><th>Score</th><th>Evidence summary</th></tr></thead><tbody>{dimensions.map((dimension) => <tr key={dimension.dimension}><th scope="row">{friendlyDimension(dimension.dimension)}</th><td>{dimension.score} / 5</td><td>{dimension.citations.length ? `${dimension.citations.length} repository reference${dimension.citations.length === 1 ? '' : 's'}` : 'Insufficient verifiable evidence'}</td></tr>)}</tbody></table></section>}
 
     <div className="report-screen-analytics mb-5 grid gap-4 xl:grid-cols-[12rem_minmax(0,1fr)_12rem]">
@@ -312,6 +380,7 @@ export function ReportPage({ demo = false }: { demo?: boolean } = {}) {
         })}</div> : <p className="cc-label">No repository reference was returned for this dimension.</p>}
       </DashPanel>;
     })}</div></section>
+    </div>
   </ReviewFrame>;
 }
 
@@ -396,8 +465,19 @@ function StatusTag({ label, failed = false }: { label: string; failed?: boolean 
   return <span className={`rounded-full border px-3 py-1 text-[11px] ${failed ? 'border-[var(--color-warning)]/40 text-[color:var(--color-warning)]' : label === 'COMPLETED' ? 'border-[var(--color-ok)]/40 text-[color:var(--color-ok)]' : 'border-[var(--color-instrument)]/35 text-[color:var(--color-instrument)]'}`}>{text}</span>;
 }
 
-function ReviewFrame({ children, fullPage = true, wide = false }: { children: React.ReactNode; fullPage?: boolean; wide?: boolean }) {
+function reportFromNavigationState(state: unknown, ingestionId: string): EvaluationReport | null {
+  if (!state || typeof state !== 'object' || !('report' in state)) return null;
+  const report = (state as { report?: unknown }).report;
+  if (!report || typeof report !== 'object') return null;
+  const candidate = report as Partial<EvaluationReport>;
+  return candidate.ingestionId === ingestionId && typeof candidate.id === 'string'
+    && typeof candidate.repositoryUrl === 'string' && typeof candidate.overallScore === 'number'
+    && typeof candidate.summary === 'string' && Array.isArray(candidate.dimensions)
+    && typeof candidate.completedAt === 'string' ? candidate as EvaluationReport : null;
+}
+
+function ReviewFrame({ children, fullPage = true, wide = false, animate = false }: { children: React.ReactNode; fullPage?: boolean; wide?: boolean; animate?: boolean }) {
   return fullPage
-    ? <div className="cc-shell min-h-screen bg-[color:var(--color-ground)]"><div className={`mx-auto w-full ${wide ? 'max-w-7xl' : 'max-w-5xl'} px-5 py-7 sm:px-8 sm:py-10`}>{children}</div></div>
+    ? <div className={`cc-shell min-h-screen bg-[color:var(--color-ground)]${animate ? ' animate-fadeIn' : ''}`}><div className={`mx-auto w-full ${wide ? 'max-w-7xl' : 'max-w-5xl'} px-5 py-7 sm:px-8 sm:py-10`}>{children}</div></div>
     : <div className={`mx-auto w-full ${wide ? 'max-w-7xl' : 'max-w-5xl'} space-y-5`}>{children}</div>;
 }
